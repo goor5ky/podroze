@@ -1,4 +1,4 @@
-const CACHE_NAME = "podroze-pwa-rebuild-v18";
+const CACHE_NAME = "podroze-pwa-clean-v18";
 const ASSETS = [
   "./",
   "./index.html",
