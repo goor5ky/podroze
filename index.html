@@ -80,6 +80,22 @@
     .card .hd .hint{color:var(--muted); font-size:12px}
     .card .bd{padding:14px}
     .kpis{display:grid; grid-template-columns: repeat(4, 1fr); gap:12px}
+
+/* Podgląd: układ KPI (desktop): 3×33% + 2×50% */
+.kpis.kpisPreview{grid-template-columns: repeat(6, 1fr)}
+.kpis.kpisPreview .kpi.span2{grid-column: span 2}
+.kpis.kpisPreview .kpi.span3{grid-column: span 3}
+
+/* Na mniejszych ekranach zostaw automatyczne łamanie */
+@media (max-width: 860px){
+  .kpis.kpisPreview{grid-template-columns: repeat(2, 1fr)}
+  .kpis.kpisPreview .kpi.span2,
+  .kpis.kpisPreview .kpi.span3{grid-column: auto}
+}
+@media (max-width: 520px){
+  .kpis.kpisPreview{grid-template-columns: 1fr}
+}
+
     .kpi{
       border:1px solid rgba(255,255,255,.07);
       background:rgba(17,24,39,.55);
@@ -236,19 +252,19 @@
       <div class="hint">Szybkie info + statusy</div>
     </div>
     <div class="bd">
-      <div class="kpis">
-        <div class="kpi">
+      <div class="kpis kpisPreview">
+        <div class="kpi span2">
           <div class="lbl">Daty</div>
           <div class="val" id="kpiDates">—</div>
           <div class="mini" id="kpiNights">—</div>
         </div>
         
-        <div class="kpi">
+        <div class="kpi span2">
           <div class="lbl">Wylot</div>
           <div class="val" id="kpiFlightOut">—</div>
           <div class="mini"> </div>
         </div>
-        <div class="kpi">
+        <div class="kpi span2">
           <div class="lbl">Powrót</div>
           <div class="val" id="kpiFlightBack">—</div>
           <div class="mini"> </div>
@@ -491,6 +507,18 @@
   function safeParseJSON(s){ try{ return {ok:true, data: JSON.parse(s)}; }catch(e){ return {ok:false, err:e}; } }
   function escapeHtml(s){ return (s??"").toString().replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
   function formatDateISO(iso){ if(!iso) return "—"; const [y,m,d]=iso.split("-").map(Number); if(!y||!m||!d) return iso; return `${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')}.${y}`; }
+  function normalizeDate(s){
+    if(!s) return "";
+    s = (""+s).trim();
+    let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(m) return s;
+    m = s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if(m) return `${m[3]}-${m[2]}-${m[1]}`;
+    m = s.match(/^(\d{2})\.(\d{2})$/);
+    if(m){ const y = new Date().getFullYear(); return `${y}-${m[2]}-${m[1]}`; }
+    return s;
+  }
+
   function nightsBetween(a,b){ if(!a||!b) return null; const A=new Date(a+"T00:00:00"), B=new Date(b+"T00:00:00"); return Math.round((B-A)/86400000); }
   function uid(){ return Math.random().toString(16).slice(2) + "_" + Date.now().toString(16); }
   function deepClone(o){ return structuredClone(o); }
@@ -596,8 +624,15 @@
 
   function syncJSONBox(){ $("jsonBox").value = JSON.stringify(state, null, 2); }
 
+  function updateGeneralNotesPreview(){
+    const el = $("previewGeneralNotes");
+    if(!el) return;
+    const gn = (state?.meta?.generalNotes || "").trim();
+    el.textContent = gn ? gn : "—";
+  }
+
   function renderKPIs(){
-    const dates = (state.planDays||[]).map(d=>d.date).filter(Boolean).sort();
+    const dates = (state.planDays||[]).map(d=>normalizeDate(d.date)).filter(Boolean).sort();
     const start = dates[0], end = dates[dates.length-1];
     $("kpiDates").textContent = (start && end) ? `${formatDateISO(start)} → ${formatDateISO(end)}` : "—";
     const nights = nightsBetween(start, end);
@@ -609,7 +644,10 @@
 
     const today = new Date();
     const isoToday = today.toISOString().slice(0,10);
-    const next = (state.planDays||[]).filter(d=>d.date && d.date >= isoToday).sort((a,b)=>a.date.localeCompare(b.date))[0];
+    const next = (state.planDays||[])
+      .map(d=>({__d:d, __iso: normalizeDate(d.date)}))
+      .filter(x=>x.__iso && x.__iso >= isoToday)
+      .sort((a,b)=>a.__iso.localeCompare(b.__iso))[0]?.__d;
     $("kpiBase").textContent = next?.base || (state.planDays?.[0]?.base ?? "—");
     const idx = next ? (state.planDays||[]).findIndex(d=>d===next) : -1;
     const nxt = (idx>=0 && state.planDays[idx+1]) ? state.planDays[idx+1] : null;
@@ -656,7 +694,9 @@
     tbody.querySelectorAll("[contenteditable]").forEach(el=>{
       el.addEventListener("blur", ()=>{
         const i = Number(el.dataset.i), k = el.dataset.k;
-        state.planDays[i][k] = el.textContent.trim();
+        let v = el.textContent.trim();
+        if(k==="date"){ v = normalizeDate(v); el.textContent = v; }
+        state.planDays[i][k] = v;
         save();
       });
     });
@@ -829,6 +869,7 @@
 
   function renderAll(){
     syncTripSelect();
+    updateGeneralNotesPreview();
     renderKPIs();
     renderPlan();
     renderLodgings();
@@ -839,6 +880,7 @@
 
   function save(){
     syncJSONBox();
+    updateGeneralNotesPreview();
     renderKPIs();
     persistStore();
     showToast();
@@ -872,7 +914,7 @@
   $("tripNameInput").addEventListener("input", ()=>{ state.meta.tripName = $("tripNameInput").value; $("tripName").textContent = state.meta.tripName || "—"; save(); });
   $("flightOut").addEventListener("input", ()=>{ state.meta.flightOut = $("flightOut").value; save(); });
   $("flightBack").addEventListener("input", ()=>{ state.meta.flightBack = $("flightBack").value; save(); });
-  $("generalNotes").addEventListener("input", ()=>{ state.meta.generalNotes = $("generalNotes").value; save(); });
+  $("generalNotes").addEventListener("input", ()=>{ state.meta.generalNotes = $("generalNotes").value; updateGeneralNotesPreview(); save(); });
 
   $("comoNotes").addEventListener("input", ()=>{ state.como.notes = $("comoNotes").value; save(); });
   $("comoLink1").addEventListener("input", ()=>{ state.como.link1 = $("comoLink1").value; save(); });
