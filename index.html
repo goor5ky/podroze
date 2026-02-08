@@ -92,19 +92,6 @@
 }
 
 
-/* Podgląd: układ KPI (desktop): 3×33% + 2×50% */
-.kpis.kpisPreview{grid-template-columns: repeat(6, 1fr)}
-.kpis.kpisPreview .kpi.span2{grid-column: span 2}
-.kpis.kpisPreview .kpi.span3{grid-column: span 3}
-
-/* Na mniejszych ekranach zostaw automatyczne łamanie */
-@media (max-width: 860px){
-  .kpis.kpisPreview{grid-template-columns: repeat(2, 1fr)}
-  .kpis.kpisPreview .kpi.span2,
-  .kpis.kpisPreview .kpi.span3{grid-column: auto}
-}
-@media (max-width: 520px){
-  .kpis.kpisPreview{grid-template-columns: 1fr}
 }
 
     .kpi{
@@ -263,96 +250,38 @@
       <div class="hint">Szybkie info + statusy</div>
     </div>
     <div class="bd">
-      
-      <div class="kpis kpisPreview">
+            <div class="kpis kpisPreview">
         <div class="kpisRow kpisTop">
-<div class="kpi">
-          <div class="lbl">Daty</div>
-          <div class="val" id="kpiDates">—</div>
-          <div class="mini" id="kpiNights">—</div>
-        </div>
-<div class="kpi">
-          <div class="lbl">Daty</div>
-          <div class="val" id="kpiDates">—</div>
-          <div class="mini" id="kpiNights">—</div>
-        </div>
-        
-        <div class="kpi">
-          <div class="lbl">Wylot</div>
-          <div class="val" id="kpiFlightOut">—</div>
-          <div class="mini"> </div>
-        </div>
-        <div class="kpi">
-          <div class="lbl">Powrót</div>
-          <div class="val" id="kpiFlightBack">—</div>
-          <div class="mini"> </div>
-        </div>
-
-        <div class="kpi">
-          <div class="lbl">Baza teraz</div>
-          <div class="val" id="kpiBase">—</div>
-          <div class="mini" id="kpiNext">—</div>
-        </div>
-<div class="kpi">
-          <div class="lbl">Daty</div>
-          <div class="val" id="kpiDates">—</div>
-          <div class="mini" id="kpiNights">—</div>
-        </div>
-        
-        <div class="kpi">
-          <div class="lbl">Wylot</div>
-          <div class="val" id="kpiFlightOut">—</div>
-          <div class="mini"> </div>
-        </div>
-        <div class="kpi">
-          <div class="lbl">Powrót</div>
-          <div class="val" id="kpiFlightBack">—</div>
-          <div class="mini"> </div>
-        </div>
-
-        <div class="kpi">
-          <div class="lbl">Baza teraz</div>
-          <div class="val" id="kpiBase">—</div>
-          <div class="mini" id="kpiNext">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lbl">Ryzyko gonitwy (powrót)</div>
-          <div class="val" id="kpiStress">—</div>
-          <div class="mini" id="kpiStressHint">—</div>
-        </div>
+          <div class="kpi">
+            <div class="lbl">Daty</div>
+            <div class="val" id="kpiDates">—</div>
+            <div class="mini" id="kpiNights">—</div>
+          </div>
+          <div class="kpi">
+            <div class="lbl">Baza teraz</div>
+            <div class="val" id="kpiBase">—</div>
+            <div class="mini" id="kpiNext">—</div>
+          </div>
+          <div class="kpi">
+            <div class="lbl">Ryzyko gonitwy (powrót)</div>
+            <div class="val" id="kpiStress">—</div>
+            <div class="mini" id="kpiStressHint">Ustaw godziny wyjazdu i lotu.</div>
+          </div>
         </div>
         <div class="kpisRow kpisBottom">
-<div class="kpi">
-          <div class="lbl">Daty</div>
-          <div class="val" id="kpiDates">—</div>
-          <div class="mini" id="kpiNights">—</div>
-        </div>
-        
-        <div class="kpi">
-          <div class="lbl">Wylot</div>
-          <div class="val" id="kpiFlightOut">—</div>
-          <div class="mini"> </div>
-        </div>
-<div class="kpi">
-          <div class="lbl">Daty</div>
-          <div class="val" id="kpiDates">—</div>
-          <div class="mini" id="kpiNights">—</div>
-        </div>
-        
-        <div class="kpi">
-          <div class="lbl">Wylot</div>
-          <div class="val" id="kpiFlightOut">—</div>
-          <div class="mini"> </div>
-        </div>
-        <div class="kpi">
-          <div class="lbl">Powrót</div>
-          <div class="val" id="kpiFlightBack">—</div>
-          <div class="mini"> </div>
-        </div>
+          <div class="kpi">
+            <div class="lbl">Wylot</div>
+            <div class="val" id="kpiFlightOut">—</div>
+            <div class="mini"> </div>
+          </div>
+          <div class="kpi">
+            <div class="lbl">Powrót</div>
+            <div class="val" id="kpiFlightBack">—</div>
+            <div class="mini"> </div>
+          </div>
         </div>
       </div>
-
-    </div>
+</div>
   </section>
 <!-- Plan dnia -->
   <section class="card eight">
