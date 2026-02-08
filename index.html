@@ -231,11 +231,18 @@
           <div class="val" id="kpiDates">—</div>
           <div class="mini" id="kpiNights">—</div>
         </div>
+        
         <div class="kpi">
-          <div class="lbl">Loty</div>
-          <div class="val" id="kpiFlights">—</div>
-          <div class="mini" id="kpiAirport">—</div>
+          <div class="lbl">Wylot</div>
+          <div class="val" id="kpiFlightOut">—</div>
+          <div class="mini"> </div>
         </div>
+        <div class="kpi">
+          <div class="lbl">Powrót</div>
+          <div class="val" id="kpiFlightBack">—</div>
+          <div class="mini"> </div>
+        </div>
+
         <div class="kpi">
           <div class="lbl">Baza teraz</div>
           <div class="val" id="kpiBase">—</div>
@@ -249,6 +256,22 @@
       </div>
     </div>
   </section>
+  <section>
+    <div class="sectionHead">
+      <h1>Uwagi ogólne</h1>
+      <div class="actions"></div>
+    </div>
+    <div class="card">
+      <div class="cardHead">
+        <h2>Uwagi ogólne</h2>
+        <span class="muted">Podgląd (tylko do odczytu)</span>
+      </div>
+      <div class="cardBody">
+        <div id="previewGeneralNotes" class="noteBox">—</div>
+      </div>
+    </div>
+  </section>
+
 
   <!-- Plan dnia -->
   <section class="card eight">
@@ -305,7 +328,7 @@
   <!-- Promy / Como triangle -->
   <section class="card two">
     <div class="hd">
-      <h2>Lake Como — “Złoty Trójkąt”</h2>
+      <h2>Przydatne linki i uwagi</h2>
       <div class="hint">Bellagio • Varenna • Menaggio</div>
     </div>
     <div class="bd">
@@ -575,7 +598,8 @@
     const nights = nightsBetween(start, end);
     $("kpiNights").textContent = (nights!=null) ? `${nights} nocy (orientacyjnie)` : "—";
 
-    $("kpiFlights").textContent = `${state.meta.flightOut || "—"} | ${state.meta.flightBack || "—"}`;
+    $("kpiFlightOut").textContent = state.meta.flightOut || "—";
+    $("kpiFlightBack").textContent = state.meta.flightBack || "—";
     $("kpiAirport").textContent = "—";
 
     const today = new Date();
@@ -779,6 +803,10 @@
     $("flightOut").value = state.meta.flightOut || "";
     $("flightBack").value = state.meta.flightBack || "";
     $("generalNotes").value = state.meta.generalNotes || "";
+
+    // Podgląd: uwagi ogólne
+    const gn = (state.meta.generalNotes || "").trim();
+    $("previewGeneralNotes").textContent = gn ? gn : "—";
 
     $("comoBaseSuggest").textContent = state.como.baseSuggest || "—";
     $("comoNotes").value = state.como.notes || "";
