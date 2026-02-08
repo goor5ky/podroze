@@ -80,7 +80,6 @@
     .card .hd .hint{color:var(--muted); font-size:12px}
     .card .bd{padding:14px}
     .kpis{display:grid; grid-template-columns: repeat(4, 1fr); gap:12px}
-
 /* Podgląd: KPI w 2 wierszach (desktop) */
 .kpis.kpisPreview{display:block}
 .kpis.kpisPreview .kpisRow{display:grid; gap:12px; margin-bottom:12px}
@@ -229,10 +228,6 @@
 @media (max-width: 520px){
   .dateinp{min-width: 100%; width: 100%}
 }
-
-/* Linki (stare pola) – ukryte */
-#comoLink1, #comoLink2{display:none}
-
 /* Linki: lista */
 .linkTitle, .linkUrl{
   width: 100%;
@@ -289,8 +284,7 @@
       <div class="hint">Szybkie info + statusy</div>
     </div>
     <div class="bd">
-      
-      <div class="kpis kpisPreview">
+            <div class="kpis kpisPreview">
         <div class="kpisRow kpisTop">
           <div class="kpi">
             <div class="lbl">Daty</div>
@@ -321,7 +315,6 @@
           </div>
         </div>
       </div>
-
           <div class="val" id="kpiDates">—</div>
           <div class="mini" id="kpiNights">—</div>
         </div>
@@ -433,13 +426,14 @@
           <input id="comoLink1" type="text" placeholder="Link 1 (np. rozkłady promów)"/>
           <input id="comoLink2" type="text" placeholder="Link 2 (np. bilety / mapa)"/>
         </div>
+      </div>
+    
       <div class="row" style="justify-content:space-between; align-items:center; margin-top:8px;">
         <div class="muted">Linki</div>
         <button class="smallbtn secondary" id="btnAddLink">+ Dodaj link</button>
       </div>
       <div id="linksList" class="list"></div>
-      </div>
-    </div>
+</div>
   </section>
 
   <!-- Powrót na lotnisko -->
@@ -535,7 +529,23 @@
         <div>
           <div class="muted">JSON (Import/Eksport działa tym samym formatem)</div>
           <textarea id="jsonBox" class="mono" spellcheck="false"></textarea>
-          <div 
+          <div class="row" style="margin-top:10px">
+            <button class="smallbtn ok" id="btnApplyJson">Zastosuj JSON</button>
+            <span class="muted">Uwaga: błędny JSON nie przejdzie.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="footer">
+  Auto‑zapis działa w <b>localStorage</b> (czyli tylko w tej przeglądarce). Eksportuj JSON, jeśli chcesz przenieść dane na inny komputer/telefon.
+</div>
+
+<div class="toast" id="toast">Zapisano ✅</div>
+
+<script>
   const STORAGE_KEY = "podroze_dashboard_multi_clean_v1";
 
   const defaultTrip = {
@@ -808,9 +818,7 @@
           <div class="t" contenteditable="true" data-lk="name" data-li="${i}">${escapeHtml(l.name||"")}</div>
           <div class="d">
             <span contenteditable="true" data-lk="city" data-li="${i}">${escapeHtml(l.city||"")}</span>
-            • <span contenteditable="true" data-lk="address" data-li="${i}">${escapeHtml(l.address||"")}</span>
-            <br>
-            <span class="mono">Link:</span> <span contenteditable="true" data-lk="url" data-li="${i}">${escapeHtml(l.url||"")}</span>
+            • <span contenteditable="true" data-lk="address" data-li="${i}">${escapeHtml(l.address||"")}</span>\n            <br>\n            <span class="mono">Link:</span> <span contenteditable="true" data-lk="url" data-li="${i}">${escapeHtml(l.url||"")}</span>
             <br>
             <span class="mono">IN:</span> <input type="date" class="dateinp" data-lk="checkIn" data-li="${i}" value="${escapeHtml(l.checkIn||"")}">
             <span class="mono">OUT:</span> <input type="date" class="dateinp" data-lk="checkOut" data-li="${i}" value="${escapeHtml(l.checkOut||"")}">
@@ -822,22 +830,11 @@
       `;
       box.appendChild(el);
     }
-    box.querySelectorAll("[contenteditable]").forEach(el=>{
+    box.querySelectorAll(".dateinp").forEach(inp=>{\n      inp.addEventListener("change", ()=>{\n        const i = Number(inp.dataset.li), k = inp.dataset.lk;\n        state.lodgings[i][k] = inp.value;\n        save();\n        calcLodgingNights();\n      });\n    });\n\n    box.querySelectorAll("[contenteditable]").forEach(el=>{
       el.addEventListener("blur", ()=>{
         const i = Number(el.dataset.li), k = el.dataset.lk;
         state.lodgings[i][k] = el.textContent.trim();
         save();
-        calcLodgingNights();
-      });
-    });
-
-    /* LODGS_DATE_LISTENERS */
-    box.querySelectorAll(".dateinp").forEach(inp=>{
-      inp.addEventListener("change", ()=>{
-        const i = Number(inp.dataset.li), k = inp.dataset.lk;
-        state.lodgings[i][k] = inp.value;
-        save();
-        calcLodgingNights();
       });
     });
     box.querySelectorAll("[data-del]").forEach(b=>{
@@ -1026,6 +1023,8 @@
   }
 
   function save(){
+    if(typeof calcLodgingNights==='function'){ try{calcLodgingNights();}catch(e){} }
+
     syncJSONBox();
     updateGeneralNotesPreview();
     renderKPIs();
@@ -1058,7 +1057,7 @@
   $("btnAddTask").addEventListener("click", ()=>{ const t=$("newTaskTitle").value.trim(); if(!t) return; state.tasks.push({done:false, title:t, desc:""}); $("newTaskTitle").value=""; renderTasks(); save(); });
   $("btnAddCost").addEventListener("click", ()=>{ state.budget.push({item:"Nowy koszt", amount:0, currency:"EUR", note:""}); renderBudget(); save(); });
 
-  $("btnAddLink")?.addEventListener("click", ()=>{ ensureLinksModel(); state.como.links.push({title:"", url:""}); renderLinks(); save(); });
+  $("btnAddLink") && $("btnAddLink").addEventListener("click", ()=>{ ensureLinksModel(); state.como.links.push({title:"", url:""}); renderLinks(); save(); });
 
   $("tripNameInput").addEventListener("input", ()=>{ state.meta.tripName = $("tripNameInput").value; $("tripName").textContent = state.meta.tripName || "—"; save(); });
   $("flightOut").addEventListener("input", ()=>{ state.meta.flightOut = $("flightOut").value; save(); });
@@ -1105,21 +1104,6 @@
     const txt = await f.text();
     const p = safeParseJSON(txt);
     if(!p.ok){ alert("Plik JSON ma błąd: " + p.err.message); e.target.value=""; return; }
-    const data = Object.assign(deepClone(defaultTrip), p.data);
-    const name = data?.meta?.tripName || f.name.replace(/\.json$/i,"") || "Podróż z pliku";
-    const id = uid();
-    store.trips[id] = { name, data, updatedAt: Date.now() };
-    store.currentId = id;
-    state = data;
-    renderAll();
-    persistStore();
-    showToast("Zaimportowano jako nową podróż ✅");
-    e.target.value = "";
-  });
-
-  renderAll();
-  persistStore();
-JSON ma błąd: " + p.err.message); e.target.value=""; return; }
     const data = Object.assign(deepClone(defaultTrip), p.data);
     const name = data?.meta?.tripName || f.name.replace(/\.json$/i,"") || "Podróż z pliku";
     const id = uid();
