@@ -770,6 +770,8 @@
             <span contenteditable="true" data-lk="city" data-li="${i}">${escapeHtml(l.city||"")}</span>
             • <span contenteditable="true" data-lk="address" data-li="${i}">${escapeHtml(l.address||"")}</span>
             <br>
+            <span class="mono">Link:</span> <span contenteditable="true" data-lk="url" data-li="${i}">${escapeHtml(l.url||"")}</span>
+            <br>
             <span class="mono">IN:</span> <input type="date" class="dateinp" data-lk="checkIn" data-li="${i}" value="${escapeHtml(l.checkIn||"")}">
             <span class="mono">OUT:</span> <input type="date" class="dateinp" data-lk="checkOut" data-li="${i}" value="${escapeHtml(l.checkOut||"")}">
             <br>
@@ -787,6 +789,17 @@
         save();
       });
     });
+
+    /* LODGINGS_DATE_LISTENERS */
+    box.querySelectorAll('.dateinp').forEach(inp=>{
+      inp.addEventListener('change', ()=>{
+        const i = Number(inp.dataset.li), k = inp.dataset.lk;
+        state.lodgings[i][k] = inp.value;
+        save();
+        if(typeof calcLodgingNights === 'function') calcLodgingNights();
+      });
+    });
+
     box.querySelectorAll("[data-del]").forEach(b=>{
       b.addEventListener("click", ()=>{
         const i = Number(b.dataset.del);
@@ -928,6 +941,8 @@
   }
 
   function save(){
+    if(typeof calcLodgingNights === 'function'){ try{ calcLodgingNights(); }catch(e){} }
+
     syncJSONBox();
     updateGeneralNotesPreview();
     renderKPIs();
@@ -956,7 +971,7 @@
 
   $("btnAddDay").addEventListener("click", ()=>{ state.planDays.push({date:"", base:"", plan:"", transport:"", status:"plan"}); renderPlan(); save(); });
   $("btnSortDays").addEventListener("click", ()=>{ state.planDays.sort((a,b)=>(a.date||"").localeCompare(b.date||"")); renderPlan(); save(); });
-  $("btnAddLodging").addEventListener("click", ()=>{ state.lodgings.push({name:"Nowy nocleg", city:"", address:"", checkIn:"", checkOut:"", notes:""}); renderLodgings(); save(); });
+  $("btnAddLodging").addEventListener("click", ()=>{ state.lodgings.push({name:"Nowy nocleg", city:"", address:"", url:"", checkIn:"", checkOut:"", notes:""}); renderLodgings(); save(); });
   $("btnAddTask").addEventListener("click", ()=>{ const t=$("newTaskTitle").value.trim(); if(!t) return; state.tasks.push({done:false, title:t, desc:""}); $("newTaskTitle").value=""; renderTasks(); save(); });
   $("btnAddCost").addEventListener("click", ()=>{ state.budget.push({item:"Nowy koszt", amount:0, currency:"EUR", note:""}); renderBudget(); save(); });
 
