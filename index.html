@@ -203,7 +203,20 @@
       background:rgba(96,165,250,.12); border:1px solid rgba(96,165,250,.28);
       font-size:11px; color:rgba(229,231,235,.9)
     }
-  </style>
+  
+/* Noclegi: daty IN/OUT */
+.dateinp{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: inherit;
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-width: 155px;
+}
+@media (max-width: 520px){
+  .dateinp{min-width: 100%; width: 100%}
+}
+</style>
 
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0b0f17">
@@ -327,6 +340,7 @@
     <div class="hd">
       <h2>Noclegi</h2>
       <div class="hint">Adresy + check‑in/out</div>
+      <div class="hint" id="lodgingsSummary">Noce: — • Pozostało: —</div>
     </div>
     <div class="bd">
       <div class="list" id="lodgingList"></div>
@@ -709,6 +723,40 @@
     });
   }
 
+  
+  function parseISODate(s){
+    if(!s) return null;
+    const m = String(s).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m) return null;
+    return new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+  }
+  function daysDiff(a,b){
+    const ms = 24*60*60*1000;
+    const da = Date.UTC(a.getFullYear(),a.getMonth(),a.getDate());
+    const db = Date.UTC(b.getFullYear(),b.getMonth(),b.getDate());
+    return Math.round((db-da)/ms);
+  }
+  function calcLodgingNights(){
+    const today = new Date();
+    const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    let total = 0;
+    let remaining = 0;
+    (state.lodgings||[]).forEach(l=>{
+      const ci = parseISODate(l.checkIn);
+      const co = parseISODate(l.checkOut);
+      if(ci && co){
+        const n = Math.max(0, daysDiff(ci, co));
+        total += n;
+        const start = (t0 > ci) ? t0 : ci;
+        if(co > start){
+          remaining += Math.max(0, daysDiff(start, co));
+        }
+      }
+    });
+    const el = $("lodgingsSummary");
+    if(el) el.textContent = `Noce: ${total} • Pozostało: ${remaining}`;
+  }
+
   function renderLodgings(){
     const box = $("lodgingList");
     box.innerHTML = "";
@@ -722,8 +770,8 @@
             <span contenteditable="true" data-lk="city" data-li="${i}">${escapeHtml(l.city||"")}</span>
             • <span contenteditable="true" data-lk="address" data-li="${i}">${escapeHtml(l.address||"")}</span>
             <br>
-            <span class="mono">IN:</span> <span contenteditable="true" data-lk="checkIn" data-li="${i}">${escapeHtml(l.checkIn||"")}</span>
-            <span class="mono">OUT:</span> <span contenteditable="true" data-lk="checkOut" data-li="${i}">${escapeHtml(l.checkOut||"")}</span>
+            <span class="mono">IN:</span> <input type="date" class="dateinp" data-lk="checkIn" data-li="${i}" value="${escapeHtml(l.checkIn||"")}">
+            <span class="mono">OUT:</span> <input type="date" class="dateinp" data-lk="checkOut" data-li="${i}" value="${escapeHtml(l.checkOut||"")}">
             <br>
             <span contenteditable="true" data-lk="notes" data-li="${i}">${escapeHtml(l.notes||"")}</span>
           </div>
@@ -873,6 +921,7 @@
     renderKPIs();
     renderPlan();
     renderLodgings();
+    calcLodgingNights();
     renderTasks();
     renderBudget();
     renderForm();
