@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>PODRÓŻE — Dashboard</title>
+  <style>
+    :root{
+      --bg:#0b0f17; --card:#111827; --card2:#0f172a; --text:#e5e7eb; --muted:#9ca3af;
+      --accent:#60a5fa; --ok:#34d399; --warn:#fbbf24; --bad:#fb7185; --line:#1f2937;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--sans); background:radial-gradient(1200px 800px at 20% 10%, #0f2344 0%, var(--bg) 50%), var(--bg);
+      color:var(--text);
+    }
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background: rgba(11,15,23,.75);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:18px 16px;}
+    .top{
+      display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+    }
+    .title{
+      display:flex; gap:12px; align-items:flex-start;
+    }
+    .badge{
+      width:44px; height:44px; border-radius:12px;
+      background:linear-gradient(135deg, rgba(96,165,250,.35), rgba(52,211,153,.18));
+      border:1px solid rgba(255,255,255,.10);
+      display:grid; place-items:center; box-shadow: var(--shadow);
+      font-weight:800;
+    }
+    h1{margin:0; font-size:18px; line-height:1.15}
+    .sub{margin:2px 0 0; color:var(--muted); font-size:13px}
+    .actions{display:flex; gap:10px; flex-wrap:wrap}
+    button, .btn{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(17,24,39,.7);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow: 0 8px 18px rgba(0,0,0,.25);
+      font-weight:650;
+    }
+    button:hover{border-color:rgba(96,165,250,.55)}
+    .btn.secondary{background:rgba(15,23,42,.75)}
+    .btn.danger{background:rgba(251,113,133,.12); border-color:rgba(251,113,133,.35)}
+    .btn.ok{background:rgba(52,211,153,.12); border-color:rgba(52,211,153,.35)}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+      padding:16px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    .card{
+      grid-column: span 12;
+      background: linear-gradient(180deg, rgba(17,24,39,.86), rgba(15,23,42,.78));
+      border:1px solid rgba(255,255,255,.07);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px 14px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .card .hd h2{margin:0; font-size:15px}
+    .card .hd .hint{color:var(--muted); font-size:12px}
+    .card .bd{padding:14px}
+    .kpis{display:grid; grid-template-columns: repeat(4, 1fr); gap:12px}
+    .kpi{
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(17,24,39,.55);
+      border-radius:14px;
+      padding:12px;
+      min-height:74px;
+    }
+    .kpi .lbl{color:var(--muted); font-size:12px}
+    .kpi .val{margin-top:6px; font-size:15px; font-weight:750}
+    .kpi .mini{margin-top:6px; color:var(--muted); font-size:12px}
+    .two{grid-column: span 6}
+    .four{grid-column: span 4}
+    .eight{grid-column: span 8}
+    @media (max-width: 960px){
+      .two,.four,.eight{grid-column: span 12}
+      .kpis{grid-template-columns: repeat(2, 1fr)}
+    }
+    @media (max-width: 540px){
+      .kpis{grid-template-columns: 1fr}
+    }
+    table{width:100%; border-collapse:collapse; font-size:13px}
+    th,td{padding:10px 8px; border-bottom:1px solid rgba(255,255,255,.06); vertical-align:top}
+    th{color:var(--muted); font-weight:700; text-align:left}
+    tr:hover td{background:rgba(96,165,250,.06)}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(17,24,39,.55);
+      font-size:12px; color:var(--muted);
+    }
+    .dot{width:8px; height:8px; border-radius:50%}
+    .dot.ok{background:var(--ok)}
+    .dot.warn{background:var(--warn)}
+    .dot.bad{background:var(--bad)}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .col{display:flex; flex-direction:column; gap:10px}
+    input[type="text"], input[type="date"], input[type="time"], textarea, select{
+      width:100%;
+      background:rgba(15,23,42,.8);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+      font-family:var(--sans);
+    }
+    textarea{min-height:90px; resize:vertical}
+    .muted{color:var(--muted); font-size:12px}
+    .split{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
+    @media (max-width: 960px){ .split{grid-template-columns:1fr} }
+    .list{
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .item{
+      display:flex; gap:10px; align-items:flex-start;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(17,24,39,.50);
+      border-radius:14px;
+      padding:10px;
+    }
+    .item input[type="checkbox"]{margin-top:4px; width:18px; height:18px}
+    .item .txt{flex:1}
+    .item .txt .t{font-weight:700; font-size:13px}
+    .item .txt .d{color:var(--muted); font-size:12px; margin-top:2px}
+    .item .x{cursor:pointer; color:rgba(255,255,255,.65); padding:2px 8px; border-radius:10px}
+    .item .x:hover{background:rgba(251,113,133,.12); color:var(--bad)}
+    .footer{
+      max-width:1200px; margin:0 auto; padding:10px 16px 26px; color:var(--muted); font-size:12px;
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    details{border:1px solid rgba(255,255,255,.07); border-radius:14px; overflow:hidden; background:rgba(17,24,39,.5)}
+    summary{cursor:pointer; padding:12px 12px; font-weight:750}
+    details .bd{padding:12px}
+    .mono{font-family:var(--mono)}
+    .toast{
+      position:fixed; right:16px; bottom:16px;
+      background:rgba(17,24,39,.92);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--text);
+      border-radius:14px;
+      padding:10px 12px;
+      box-shadow: var(--shadow);
+      transform:translateY(20px);
+      opacity:0;
+      pointer-events:none;
+      transition:.25s ease;
+      font-size:13px;
+    }
+    .toast.show{opacity:1; transform:translateY(0)}
+    .smallbtn{padding:8px 10px; border-radius:12px; font-size:12px}
+    .right{margin-left:auto}
+    .tag{
+      display:inline-block; padding:4px 8px; border-radius:999px;
+      background:rgba(96,165,250,.12); border:1px solid rgba(96,165,250,.28);
+      font-size:11px; color:rgba(229,231,235,.9)
+    }
+  </style>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b0f17">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="title">
+        <div class="badge">PL</div>
+        <div>
+          <h1 id="tripName">Nowa podróż</h1>
+          <div class="sub" id="tripSub">Dashboard do aktualizowania na bieżąco (auto‑zapis w przeglądarce).</div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="row" style="gap:10px; align-items:center;">
+          <span class="pill"><span class="dot ok"></span> Podróż</span>
+          <select id="tripSelect" style="min-width:240px; max-width:420px"></select>
+          <button class="btn secondary" id="btnNewTrip" title="Nowa podróż">+ Nowa</button>
+          <button class="btn secondary" id="btnDupTrip" title="Duplikuj bieżącą">Duplikuj</button>
+          <button class="btn danger" id="btnDelTrip" title="Usuń bieżącą">Usuń</button>
+        </div>
+        <button class="btn secondary" id="btnExport">Eksport JSON</button>
+        <label class="btn secondary" style="display:inline-flex; gap:10px; align-items:center;">
+          Import JSON <input id="fileImport" type="file" accept="application/json" style="display:none">
+        </label>
+        <button class="btn ok" id="btnSave">Zapisz teraz</button>
+        <button class="btn danger" id="btnReset">Reset (czyści wszystko)</button>
+
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="grid">
+  <!-- KPI -->
+  <section class="card">
+    <div class="hd">
+      <h2>Podgląd</h2>
+      <div class="hint">Szybkie info + statusy</div>
+    </div>
+    <div class="bd">
+      <div class="kpis">
+        <div class="kpi">
+          <div class="lbl">Daty</div>
+          <div class="val" id="kpiDates">—</div>
+          <div class="mini" id="kpiNights">—</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Loty</div>
+          <div class="val" id="kpiFlights">—</div>
+          <div class="mini" id="kpiAirport">—</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Baza teraz</div>
+          <div class="val" id="kpiBase">—</div>
+          <div class="mini" id="kpiNext">—</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Ryzyko gonitwy (powrót)</div>
+          <div class="val" id="kpiStress">—</div>
+          <div class="mini" id="kpiStressHint">—</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Plan dnia -->
+  <section class="card eight">
+    <div class="hd">
+      <h2>Plan dzień po dniu</h2>
+      <div class="hint">Dodawaj punkty, linki, notatki</div>
+    </div>
+    <div class="bd">
+      <table id="planTable">
+        <thead>
+          <tr>
+            <th style="width:110px;">Data</th>
+            <th style="width:140px;">Miasto / baza</th>
+            <th>Plan (skrót)</th>
+            <th style="width:140px;">Transport</th>
+            <th style="width:110px;">Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div style="margin-top:12px" class="row">
+        <button class="smallbtn" id="btnAddDay">+ Dodaj dzień</button>
+        <button class="smallbtn secondary" id="btnSortDays">Sortuj po dacie</button>
+        <span class="muted">Tip: kliknij w komórkę, żeby edytować.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Noclegi -->
+  <section class="card four">
+    <div class="hd">
+      <h2>Noclegi</h2>
+      <div class="hint">Adresy + check‑in/out</div>
+    </div>
+    <div class="bd">
+      <div class="list" id="lodgingList"></div>
+
+      <div style="margin-top:12px" class="row">
+        <button class="smallbtn" id="btnAddLodging">+ Dodaj nocleg</button>
+      </div>
+
+      <details style="margin-top:12px">
+        <summary>Filtry “tanie i działa”</summary>
+        <div class="bd">
+          <div class="muted">
+            Rodzinny zestaw: <span class="tag">klima</span> <span class="tag">darmowe odwołanie</span> <span class="tag">2+2</span> <span class="tag">blisko stacji</span> <span class="tag">pralnia/aneks</span>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- Promy / Como triangle -->
+  <section class="card two">
+    <div class="hd">
+      <h2>Lake Como — “Złoty Trójkąt”</h2>
+      <div class="hint">Bellagio • Varenna • Menaggio</div>
+    </div>
+    <div class="bd">
+      <div class="col">
+        <div class="row">
+          <span class="pill"><span class="dot ok"></span> Baza sugerowana: <b id="comoBaseSuggest">—</b></span>
+          <span class="pill"><span class="dot warn"></span> Zależne od: rozkładów promów</span>
+        </div>
+        <div class="muted">
+          Wklejaj linki do rozkładów/promów i notuj “okna” godzinowe.
+        </div>
+        <textarea id="comoNotes" placeholder="Notatki: promy, godziny, ceny, linki, tipy..."></textarea>
+        <div class="row">
+          <input id="comoLink1" type="text" placeholder="Link 1 (np. rozkłady promów)"/>
+          <input id="comoLink2" type="text" placeholder="Link 2 (np. bilety / mapa)"/>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Powrót na lotnisko -->
+  <section class="card two">
+    <div class="hd">
+      <h2>Powrót na lotnisko — plan bez gonitwy</h2>
+      <div class="hint">Poniedziałek: wyjazd rano</div>
+    </div>
+    <div class="bd">
+      <div class="split">
+        <div>
+          <div class="muted">Start (np. miasto / stacja)</div>
+          <input id="returnStart" type="text" placeholder="Skąd ruszamy rano?"/>
+        </div>
+        <div>
+          <div class="muted">Cel (lotnisko)</div>
+          <input id="returnGoal" type="text" placeholder="Lotnisko docelowe / miasto"/>
+        </div>
+      </div>
+      <div style="margin-top:10px" class="split">
+        <div>
+          <div class="muted">Wyjazd (godzina)</div>
+          <input id="returnDepart" type="time"/>
+        </div>
+        <div>
+          <div class="muted">Lot (godzina)</div>
+          <input id="returnFlightTime" type="time"/>
+        </div>
+      </div>
+      <div style="margin-top:10px" class="muted">Twoje zasady “bez gonitwy”</div>
+      <textarea id="returnRules" placeholder="Np. być na lotnisku 2:15 przed lotem; minimum 1 przesiadka; bufor 30 min na opóźnienia..."></textarea>
+    </div>
+  </section>
+
+  <!-- Checklist -->
+  <section class="card two">
+    <div class="hd">
+      <h2>Checklist</h2>
+      <div class="hint">Pakowanie i “żelazne” rzeczy</div>
+    </div>
+    <div class="bd">
+      <div class="row" style="margin-bottom:10px">
+        <input id="newTaskTitle" type="text" placeholder="Nowy punkt (np. dokumenty, bilety, powerbank...)"/>
+        <button class="smallbtn" id="btnAddTask">Dodaj</button>
+      </div>
+      <div class="list" id="taskList"></div>
+    </div>
+  </section>
+
+  <!-- Budżet (prosty) -->
+  <section class="card two">
+    <div class="hd">
+      <h2>Budżet (prosty)</h2>
+      <div class="hint">Na szybko: koszty + notatki</div>
+    </div>
+    <div class="bd">
+      <table id="budgetTable">
+        <thead>
+          <tr>
+            <th>Pozycja</th>
+            <th style="width:120px;">Kwota</th>
+            <th style="width:90px;">Waluta</th>
+            <th>Notatka</th>
+            <th style="width:60px;"></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div style="margin-top:10px" class="row">
+        <button class="smallbtn" id="btnAddCost">+ Dodaj koszt</button>
+        <span class="right pill"><span class="dot ok"></span> Suma: <b id="budgetSum">0</b></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dane / edycja JSON -->
+  <section class="card">
+    <div class="hd">
+      <h2>Ustawienia i dane (do edycji)</h2>
+      <div class="hint">Tu możesz wkleić/edytować JSON ręcznie</div>
+    </div>
+    <div class="bd">
+      <div class="split">
+        <div>
+          <div class="muted">Nazwa wyjazdu</div>
+          <input id="tripNameInput" type="text"/>
+          <div class="muted" style="margin-top:10px">Loty (tekst)</div>
+          <input id="flightOut" type="text" placeholder="Wylot (np. 22.07 LOTNISKO_A 08:10 → LOTNISKO_B)"/>
+          <input id="flightBack" type="text" placeholder="Powrót (np. 27.07 LOTNISKO_B 19:30 → LOTNISKO_A)" style="margin-top:8px"/>
+          <div class="muted" style="margin-top:10px">Uwagi ogólne</div>
+          <textarea id="generalNotes" placeholder="Np. dzieci <14 jeżdżą gratis w Mediolanie; biletów nie kupować na styk; itd."></textarea>
+        </div>
+        <div>
+          <div class="muted">JSON (Import/Eksport działa tym samym formatem)</div>
+          <textarea id="jsonBox" class="mono" spellcheck="false"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button class="smallbtn ok" id="btnApplyJson">Zastosuj JSON</button>
+            <span class="muted">Uwaga: błędny JSON nie przejdzie.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="footer">
+  Auto‑zapis działa w <b>localStorage</b> (czyli tylko w tej przeglądarce). Eksportuj JSON, jeśli chcesz przenieść dane na inny komputer/telefon.
+</div>
+
+<div class="toast" id="toast">Zapisano ✅</div>
+
+<script>
+  const STORAGE_KEY = "podroze_dashboard_multi_clean_v1";
+
+  const defaultTrip = {
+    meta: {
+      tripName: "Nowa podróż",
+      flightOut: "",
+      flightBack: "",
+      generalNotes: ""
+    },
+    planDays: [],
+    lodgings: [],
+    como: { baseSuggest: "", notes: "", link1: "", link2: "" },
+    returnPlan: { start: "", goal: "", departTime: "", flightTime: "", rules: "" },
+    tasks: [
+      { done:false, title:"Dokumenty + bilety", desc:"Zrzuty offline / PDF" },
+      { done:false, title:"Powerbank + kable", desc:"Telefon = bilety + mapy" },
+      { done:false, title:"Rezerwacje noclegów", desc:"Potwierdzenia w offline" }
+    ],
+    budget: []
+  };
+
+  const $ = (id)=>document.getElementById(id);
+  const toast = $("toast");
+  function showToast(msg="Zapisano ✅"){ toast.textContent = msg; toast.classList.add("show"); setTimeout(()=>toast.classList.remove("show"), 1100); }
+  function safeParseJSON(s){ try{ return {ok:true, data: JSON.parse(s)}; }catch(e){ return {ok:false, err:e}; } }
+  function escapeHtml(s){ return (s??"").toString().replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+  function formatDateISO(iso){ if(!iso) return "—"; const [y,m,d]=iso.split("-").map(Number); if(!y||!m||!d) return iso; return `${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')}.${y}`; }
+  function nightsBetween(a,b){ if(!a||!b) return null; const A=new Date(a+"T00:00:00"), B=new Date(b+"T00:00:00"); return Math.round((B-A)/86400000); }
+  function uid(){ return Math.random().toString(16).slice(2) + "_" + Date.now().toString(16); }
+  function deepClone(o){ return structuredClone(o); }
+
+  function defaultStore(){ const id = uid(); return { currentId: id, trips: { [id]: { name: defaultTrip.meta.tripName, data: deepClone(defaultTrip), updatedAt: Date.now() } } }; }
+  function migrateOldOrDefault(){
+    const oldKey = "podroze_dashboard_bergamo_milan_como_v1";
+    const rawOld = localStorage.getItem(oldKey);
+    if(rawOld){
+      const p = safeParseJSON(rawOld);
+      if(p.ok){ const id = uid(); return { currentId:id, trips:{ [id]: { name: (p.data?.meta?.tripName || "Podróż"), data: p.data, updatedAt: Date.now() } } }; }
+    }
+    return defaultStore();
+  }
+  function loadStore(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return migrateOldOrDefault();
+    const p = safeParseJSON(raw);
+    if(!p.ok || !p.data || typeof p.data !== "object" || !p.data.trips) return migrateOldOrDefault();
+    return p.data;
+  }
+
+  let store = loadStore();
+  let state = getCurrentTripData();
+
+  function getCurrentTrip(){
+    const t = store.trips[store.currentId];
+    if(t) return t;
+    const firstId = Object.keys(store.trips)[0];
+    store.currentId = firstId;
+    return store.trips[firstId];
+  }
+  function getCurrentTripData(){ return getCurrentTrip().data; }
+
+  function persistStore(){
+    const cur = getCurrentTrip();
+    cur.name = state.meta?.tripName || cur.name || "Podróż";
+    cur.updatedAt = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    syncTripSelect();
+  }
+
+  function syncTripSelect(){
+    const sel = $("tripSelect");
+    if(!sel) return;
+    const ids = Object.keys(store.trips).sort((a,b)=>(store.trips[b].updatedAt||0)-(store.trips[a].updatedAt||0));
+    sel.innerHTML = "";
+    for(const id of ids){
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = store.trips[id].name || "Podróż";
+      sel.appendChild(opt);
+    }
+    sel.value = store.currentId || ids[0];
+  }
+
+  function switchTrip(id){
+    if(!store.trips[id]) return;
+    persistStore();
+    store.currentId = id;
+    state = getCurrentTripData();
+    renderAll();
+    persistStore();
+    showToast("Zmieniono podróż ✅");
+  }
+  function newTrip(){
+    const name = prompt("Nazwa nowej podróży:", "Nowa podróż");
+    if(name === null) return;
+    const id = uid();
+    const data = deepClone(defaultTrip);
+    data.meta.tripName = name || "Nowa podróż";
+    store.trips[id] = { name: data.meta.tripName, data, updatedAt: Date.now() };
+    store.currentId = id;
+    state = data;
+    renderAll();
+    persistStore();
+    showToast("Dodano podróż ✅");
+  }
+  function dupTrip(){
+    const cur = getCurrentTrip();
+    const id = uid();
+    const data = deepClone(cur.data);
+    data.meta.tripName = (cur.name || "Podróż") + " (kopia)";
+    store.trips[id] = { name: data.meta.tripName, data, updatedAt: Date.now() };
+    store.currentId = id;
+    state = data;
+    renderAll();
+    persistStore();
+    showToast("Zduplikowano ✅");
+  }
+  function delTrip(){
+    const ids = Object.keys(store.trips);
+    if(ids.length <= 1){ alert("Musi zostać przynajmniej jedna podróż."); return; }
+    const cur = getCurrentTrip();
+    if(!confirm(`Usunąć podróż:\n\n${cur.name}\n\n(Pliki JSON na dysku zostają.)`)) return;
+    delete store.trips[store.currentId];
+    store.currentId = Object.keys(store.trips)[0];
+    state = getCurrentTripData();
+    renderAll();
+    persistStore();
+    showToast("Usunięto ✅");
+  }
+
+  function syncJSONBox(){ $("jsonBox").value = JSON.stringify(state, null, 2); }
+
+  function renderKPIs(){
+    const dates = (state.planDays||[]).map(d=>d.date).filter(Boolean).sort();
+    const start = dates[0], end = dates[dates.length-1];
+    $("kpiDates").textContent = (start && end) ? `${formatDateISO(start)} → ${formatDateISO(end)}` : "—";
+    const nights = nightsBetween(start, end);
+    $("kpiNights").textContent = (nights!=null) ? `${nights} nocy (orientacyjnie)` : "—";
+
+    $("kpiFlights").textContent = `${state.meta.flightOut || "—"} | ${state.meta.flightBack || "—"}`;
+    $("kpiAirport").textContent = "—";
+
+    const today = new Date();
+    const isoToday = today.toISOString().slice(0,10);
+    const next = (state.planDays||[]).filter(d=>d.date && d.date >= isoToday).sort((a,b)=>a.date.localeCompare(b.date))[0];
+    $("kpiBase").textContent = next?.base || (state.planDays?.[0]?.base ?? "—");
+    const idx = next ? (state.planDays||[]).findIndex(d=>d===next) : -1;
+    const nxt = (idx>=0 && state.planDays[idx+1]) ? state.planDays[idx+1] : null;
+    $("kpiNext").textContent = nxt ? `Następnie: ${nxt.base} (${formatDateISO(nxt.date)})` : "—";
+
+    const rp = state.returnPlan || {};
+    const depart = rp.departTime || "";
+    const flight = rp.flightTime || "";
+    let hint = "Ustaw godziny wyjazdu i lotu.";
+    let label = "—";
+    if(depart && flight){
+      const [dh,dm]=depart.split(":").map(Number);
+      const [fh,fm]=flight.split(":").map(Number);
+      const mins = (fh*60+fm) - (dh*60+dm);
+      if(Number.isFinite(mins)){
+        if(mins >= 420){ label="Spokojnie"; hint=`Masz ~${Math.floor(mins/60)}h ${mins%60}m buforu.`; }
+        else if(mins >= 300){ label="OK"; hint=`Masz ~${Math.floor(mins/60)}h ${mins%60}m. Zostaw bufor.`; }
+        else { label="Ryzyko"; hint=`Tylko ~${Math.floor(mins/60)}h ${mins%60}m. To pachnie gonitwą.`; }
+      }
+    }
+    $("kpiStress").textContent = label;
+    $("kpiStressHint").textContent = hint;
+  }
+
+  function renderPlan(){
+    const tbody = $("planTable").querySelector("tbody");
+    tbody.innerHTML = "";
+    (state.planDays||[]).sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+    for(const [i,d] of (state.planDays||[]).entries()){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td contenteditable="true" data-k="date" data-i="${i}">${d.date||""}</td>
+        <td contenteditable="true" data-k="base" data-i="${i}">${escapeHtml(d.base||"")}</td>
+        <td contenteditable="true" data-k="plan" data-i="${i}">${escapeHtml(d.plan||"")}</td>
+        <td contenteditable="true" data-k="transport" data-i="${i}">${escapeHtml(d.transport||"")}</td>
+        <td>
+          <select data-k="status" data-i="${i}">
+            ${["plan","ok","uwaga","gotowe"].map(s=>`<option value="${s}" ${d.status===s?"selected":""}>${s}</option>`).join("")}
+          </select>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+    tbody.querySelectorAll("[contenteditable]").forEach(el=>{
+      el.addEventListener("blur", ()=>{
+        const i = Number(el.dataset.i), k = el.dataset.k;
+        state.planDays[i][k] = el.textContent.trim();
+        save();
+      });
+    });
+    tbody.querySelectorAll("select").forEach(sel=>{
+      sel.addEventListener("change", ()=>{
+        const i = Number(sel.dataset.i), k = sel.dataset.k;
+        state.planDays[i][k] = sel.value;
+        save();
+      });
+    });
+  }
+
+  function renderLodgings(){
+    const box = $("lodgingList");
+    box.innerHTML = "";
+    for(const [i,l] of (state.lodgings||[]).entries()){
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="txt">
+          <div class="t" contenteditable="true" data-lk="name" data-li="${i}">${escapeHtml(l.name||"")}</div>
+          <div class="d">
+            <span contenteditable="true" data-lk="city" data-li="${i}">${escapeHtml(l.city||"")}</span>
+            • <span contenteditable="true" data-lk="address" data-li="${i}">${escapeHtml(l.address||"")}</span>
+            <br>
+            <span class="mono">IN:</span> <span contenteditable="true" data-lk="checkIn" data-li="${i}">${escapeHtml(l.checkIn||"")}</span>
+            <span class="mono">OUT:</span> <span contenteditable="true" data-lk="checkOut" data-li="${i}">${escapeHtml(l.checkOut||"")}</span>
+            <br>
+            <span contenteditable="true" data-lk="notes" data-li="${i}">${escapeHtml(l.notes||"")}</span>
+          </div>
+        </div>
+        <div class="x" title="Usuń" data-del="${i}">✕</div>
+      `;
+      box.appendChild(el);
+    }
+    box.querySelectorAll("[contenteditable]").forEach(el=>{
+      el.addEventListener("blur", ()=>{
+        const i = Number(el.dataset.li), k = el.dataset.lk;
+        state.lodgings[i][k] = el.textContent.trim();
+        save();
+      });
+    });
+    box.querySelectorAll("[data-del]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const i = Number(b.dataset.del);
+        state.lodgings.splice(i,1);
+        renderAll(); save();
+      });
+    });
+  }
+
+  function renderTasks(){
+    const list = $("taskList");
+    list.innerHTML = "";
+    for(const [i,t] of (state.tasks||[]).entries()){
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <input type="checkbox" ${t.done?"checked":""} data-ti="${i}">
+        <div class="txt">
+          <div class="t" contenteditable="true" data-tk="title" data-ti="${i}">${escapeHtml(t.title||"")}</div>
+          <div class="d" contenteditable="true" data-tk="desc" data-ti="${i}">${escapeHtml(t.desc||"")}</div>
+        </div>
+        <div class="x" title="Usuń" data-tdel="${i}">✕</div>
+      `;
+      list.appendChild(el);
+    }
+    list.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+      cb.addEventListener("change", ()=>{ state.tasks[Number(cb.dataset.ti)].done = cb.checked; save(); });
+    });
+    list.querySelectorAll("[contenteditable]").forEach(el=>{
+      el.addEventListener("blur", ()=>{
+        const i=Number(el.dataset.ti), k=el.dataset.tk;
+        state.tasks[i][k]=el.textContent.trim();
+        save();
+      });
+    });
+    list.querySelectorAll("[data-tdel]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        state.tasks.splice(Number(b.dataset.tdel),1);
+        renderAll(); save();
+      });
+    });
+  }
+
+  function renderBudget(){
+    const tbody = $("budgetTable").querySelector("tbody");
+    tbody.innerHTML = "";
+    for(const [i,c] of (state.budget||[]).entries()){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td contenteditable="true" data-bk="item" data-bi="${i}">${escapeHtml(c.item||"")}</td>
+        <td contenteditable="true" data-bk="amount" data-bi="${i}">${(c.amount ?? "")}</td>
+        <td>
+          <select data-bk="currency" data-bi="${i}">
+            ${["EUR","PLN"].map(x=>`<option value="${x}" ${(c.currency===x)?"selected":""}>${x}</option>`).join("")}
+          </select>
+        </td>
+        <td contenteditable="true" data-bk="note" data-bi="${i}">${escapeHtml(c.note||"")}</td>
+        <td><button class="smallbtn danger" data-bdel="${i}">Usuń</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+    tbody.querySelectorAll("[contenteditable]").forEach(el=>{
+      el.addEventListener("blur", ()=>{
+        const i=Number(el.dataset.bi), k=el.dataset.bk;
+        let v = el.textContent.trim();
+        if(k==="amount"){
+          v = v.replace(",", ".");
+          const n = Number(v);
+          state.budget[i][k] = Number.isFinite(n) ? n : 0;
+          el.textContent = state.budget[i][k];
+        }else{
+          state.budget[i][k] = v;
+        }
+        save(); renderBudgetSum();
+      });
+    });
+    tbody.querySelectorAll("select").forEach(sel=>{
+      sel.addEventListener("change", ()=>{
+        const i=Number(sel.dataset.bi), k=sel.dataset.bk;
+        state.budget[i][k]=sel.value;
+        save(); renderBudgetSum();
+      });
+    });
+    tbody.querySelectorAll("[data-bdel]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        state.budget.splice(Number(btn.dataset.bdel),1);
+        renderAll(); save();
+      });
+    });
+    renderBudgetSum();
+  }
+
+  function renderBudgetSum(){
+    const sums = {};
+    for(const c of (state.budget||[])){
+      const cur = c.currency || "EUR";
+      const amt = Number(c.amount)||0;
+      sums[cur] = (sums[cur]||0) + amt;
+    }
+    const parts = Object.entries(sums).map(([k,v])=>`${v.toFixed(2)} ${k}`);
+    $("budgetSum").textContent = parts.length ? parts.join(" • ") : "0";
+  }
+
+  function renderForm(){
+    $("tripName").textContent = state.meta.tripName || "—";
+    $("tripNameInput").value = state.meta.tripName || "";
+    $("flightOut").value = state.meta.flightOut || "";
+    $("flightBack").value = state.meta.flightBack || "";
+    $("generalNotes").value = state.meta.generalNotes || "";
+
+    $("comoBaseSuggest").textContent = state.como.baseSuggest || "—";
+    $("comoNotes").value = state.como.notes || "";
+    $("comoLink1").value = state.como.link1 || "";
+    $("comoLink2").value = state.como.link2 || "";
+
+    $("returnStart").value = state.returnPlan.start || "";
+    $("returnGoal").value = state.returnPlan.goal || "";
+    $("returnDepart").value = state.returnPlan.departTime || "";
+    $("returnFlightTime").value = state.returnPlan.flightTime || "";
+    $("returnRules").value = state.returnPlan.rules || "";
+
+    syncJSONBox();
+  }
+
+  function renderAll(){
+    syncTripSelect();
+    renderKPIs();
+    renderPlan();
+    renderLodgings();
+    renderTasks();
+    renderBudget();
+    renderForm();
+  }
+
+  function save(){
+    syncJSONBox();
+    renderKPIs();
+    persistStore();
+    showToast();
+  }
+
+  function hardReset(){
+    if(!confirm("Na pewno? To usunie WSZYSTKIE podróże zapisane w tej przeglądarce.")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    store = defaultStore();
+    state = getCurrentTripData();
+    renderAll();
+    persistStore();
+    showToast("Zresetowano 🧹");
+  }
+
+  // ---- wire UI ----
+  $("btnSave").addEventListener("click", save);
+  $("btnReset").addEventListener("click", hardReset);
+
+  $("tripSelect").addEventListener("change", (e)=>switchTrip(e.target.value));
+  $("btnNewTrip").addEventListener("click", newTrip);
+  $("btnDupTrip").addEventListener("click", dupTrip);
+  $("btnDelTrip").addEventListener("click", delTrip);
+
+  $("btnAddDay").addEventListener("click", ()=>{ state.planDays.push({date:"", base:"", plan:"", transport:"", status:"plan"}); renderPlan(); save(); });
+  $("btnSortDays").addEventListener("click", ()=>{ state.planDays.sort((a,b)=>(a.date||"").localeCompare(b.date||"")); renderPlan(); save(); });
+  $("btnAddLodging").addEventListener("click", ()=>{ state.lodgings.push({name:"Nowy nocleg", city:"", address:"", checkIn:"", checkOut:"", notes:""}); renderLodgings(); save(); });
+  $("btnAddTask").addEventListener("click", ()=>{ const t=$("newTaskTitle").value.trim(); if(!t) return; state.tasks.push({done:false, title:t, desc:""}); $("newTaskTitle").value=""; renderTasks(); save(); });
+  $("btnAddCost").addEventListener("click", ()=>{ state.budget.push({item:"Nowy koszt", amount:0, currency:"EUR", note:""}); renderBudget(); save(); });
+
+  $("tripNameInput").addEventListener("input", ()=>{ state.meta.tripName = $("tripNameInput").value; $("tripName").textContent = state.meta.tripName || "—"; save(); });
+  $("flightOut").addEventListener("input", ()=>{ state.meta.flightOut = $("flightOut").value; save(); });
+  $("flightBack").addEventListener("input", ()=>{ state.meta.flightBack = $("flightBack").value; save(); });
+  $("generalNotes").addEventListener("input", ()=>{ state.meta.generalNotes = $("generalNotes").value; save(); });
+
+  $("comoNotes").addEventListener("input", ()=>{ state.como.notes = $("comoNotes").value; save(); });
+  $("comoLink1").addEventListener("input", ()=>{ state.como.link1 = $("comoLink1").value; save(); });
+  $("comoLink2").addEventListener("input", ()=>{ state.como.link2 = $("comoLink2").value; save(); });
+
+  $("returnStart").addEventListener("input", ()=>{ state.returnPlan.start = $("returnStart").value; save(); });
+  $("returnGoal").addEventListener("input", ()=>{ state.returnPlan.goal = $("returnGoal").value; save(); });
+  $("returnDepart").addEventListener("input", ()=>{ state.returnPlan.departTime = $("returnDepart").value; save(); });
+  $("returnFlightTime").addEventListener("input", ()=>{ state.returnPlan.flightTime = $("returnFlightTime").value; save(); });
+  $("returnRules").addEventListener("input", ()=>{ state.returnPlan.rules = $("returnRules").value; save(); });
+
+  $("btnApplyJson").addEventListener("click", ()=>{
+    const p = safeParseJSON($("jsonBox").value);
+    if(!p.ok){ alert("JSON ma błąd: " + p.err.message); return; }
+    state = Object.assign(deepClone(defaultTrip), p.data);
+    store.trips[store.currentId].data = state;
+    store.trips[store.currentId].name = state.meta?.tripName || store.trips[store.currentId].name;
+    renderAll();
+    persistStore();
+    showToast("Zastosowano JSON ✅");
+  });
+
+  $("btnExport").addEventListener("click", ()=>{
+    persistStore();
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    const safeName = (state.meta?.tripName || "podroz").replaceAll(/[^a-z0-9\-_ ]/gi,"").trim().replaceAll(" ","_").slice(0,60) || "podroz";
+    a.download = `${safeName}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  });
+
+  $("fileImport").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    const txt = await f.text();
+    const p = safeParseJSON(txt);
+    if(!p.ok){ alert("Plik JSON ma błąd: " + p.err.message); e.target.value=""; return; }
+    const data = Object.assign(deepClone(defaultTrip), p.data);
+    const name = data?.meta?.tripName || f.name.replace(/\.json$/i,"") || "Podróż z pliku";
+    const id = uid();
+    store.trips[id] = { name, data, updatedAt: Date.now() };
+    store.currentId = id;
+    state = data;
+    renderAll();
+    persistStore();
+    showToast("Zaimportowano jako nową podróż ✅");
+    e.target.value = "";
+  });
+
+  renderAll();
+  persistStore();
+</script>
+
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    });
+  }
+</script>
+
+</body>
+</html>
