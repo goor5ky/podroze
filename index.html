@@ -90,9 +90,9 @@
     .kpi .lbl{color:var(--muted); font-size:12px}
     .kpi .val{margin-top:6px; font-size:15px; font-weight:750}
     .kpi .mini{margin-top:6px; color:var(--muted); font-size:12px}
-    .two{grid-column: span 6}
-    .four{grid-column: span 4}
-    .eight{grid-column: span 8}
+    .two{grid-column: span 12}
+    .four{grid-column: span 12}
+    .eight{grid-column: span 12}
     @media (max-width: 960px){
       .two,.four,.eight{grid-column: span 12}
       .kpis{grid-template-columns: repeat(2, 1fr)}
@@ -100,6 +100,17 @@
     @media (max-width: 540px){
       .kpis{grid-template-columns: 1fr}
     }
+    
+    .noteBox{
+      padding:12px 14px;
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:14px;
+      background: rgba(17,24,39,.35);
+      white-space: pre-wrap;
+      line-height: 1.45;
+      color: var(--text);
+    }
+    
     table{width:100%; border-collapse:collapse; font-size:13px}
     th,td{padding:10px 8px; border-bottom:1px solid rgba(255,255,255,.06); vertical-align:top}
     th{color:var(--muted); font-weight:700; text-align:left}
@@ -256,24 +267,7 @@
       </div>
     </div>
   </section>
-  <section>
-    <div class="sectionHead">
-      <h1>Uwagi ogólne</h1>
-      <div class="actions"></div>
-    </div>
-    <div class="card">
-      <div class="cardHead">
-        <h2>Uwagi ogólne</h2>
-        <span class="muted">Podgląd (tylko do odczytu)</span>
-      </div>
-      <div class="cardBody">
-        <div id="previewGeneralNotes" class="noteBox">—</div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- Plan dnia -->
+<!-- Plan dnia -->
   <section class="card eight">
     <div class="hd">
       <h2>Plan dzień po dniu</h2>
@@ -300,6 +294,17 @@
       </div>
     </div>
   </section>
+  <!-- Uwagi ogólne (Podgląd) -->
+  <section class="card">
+    <div class="hd">
+      <h2>Uwagi ogólne</h2>
+      <div class="hint">Podgląd (tylko do odczytu)</div>
+    </div>
+    <div class="bd">
+      <div id="previewGeneralNotes" class="noteBox">—</div>
+    </div>
+  </section>
+
 
   <!-- Noclegi -->
   <section class="card four">
