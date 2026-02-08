@@ -81,22 +81,18 @@
     .card .bd{padding:14px}
     .kpis{display:grid; grid-template-columns: repeat(4, 1fr); gap:12px}
 
-/* Podgląd: układ KPI (desktop): 3×33% + 2×50% */
-.kpis.kpisPreview{grid-template-columns: repeat(6, 1fr)}
-.kpis.kpisPreview .kpi.span2{grid-column: span 2}
-.kpis.kpisPreview .kpi.span3{grid-column: span 3}
-
-/* Na mniejszych ekranach zostaw automatyczne łamanie */
+/* Podgląd: KPI w 2 wierszach (desktop) */
+.kpis.kpisPreview{display:block}
+.kpis.kpisPreview .kpisRow{display:grid; gap:12px; margin-bottom:12px}
+.kpis.kpisPreview .kpisTop{grid-template-columns: repeat(3, 1fr)}
+.kpis.kpisPreview .kpisBottom{grid-template-columns: repeat(2, 1fr)}
 @media (max-width: 860px){
-  .kpis.kpisPreview{grid-template-columns: repeat(2, 1fr)}
-  .kpis.kpisPreview .kpi.span2,
-  .kpis.kpisPreview .kpi.span3{grid-column: auto}
-}
-@media (max-width: 520px){
-  .kpis.kpisPreview{grid-template-columns: 1fr}
+  .kpis.kpisPreview .kpisTop{grid-template-columns: 1fr}
+  .kpis.kpisPreview .kpisBottom{grid-template-columns: 1fr}
 }
 
-    .kpi{
+
+.kpi{
       border:1px solid rgba(255,255,255,.07);
       background:rgba(17,24,39,.55);
       border-radius:14px;
@@ -252,19 +248,51 @@
       <div class="hint">Szybkie info + statusy</div>
     </div>
     <div class="bd">
-      <div class="kpis kpisPreview">
-        <div class="kpi span2">
+      
+<div class="kpis kpisPreview">
+  <div class="kpisRow kpisTop">
+    <div class="kpi">
+        <div class="kpi">
+          <div class="lbl">Daty</div>
+          <div class="val" id="kpiDates">—</div>
+          <div class="mini" id="kpiNights">—</div>
+        </div>
+    <div class="kpi">
+        <div class="kpi">
           <div class="lbl">Daty</div>
           <div class="val" id="kpiDates">—</div>
           <div class="mini" id="kpiNights">—</div>
         </div>
         
-        <div class="kpi span2">
+        <div class="kpi">
           <div class="lbl">Wylot</div>
           <div class="val" id="kpiFlightOut">—</div>
           <div class="mini"> </div>
         </div>
-        <div class="kpi span2">
+        <div class="kpi">
+          <div class="lbl">Powrót</div>
+          <div class="val" id="kpiFlightBack">—</div>
+          <div class="mini"> </div>
+        </div>
+
+        <div class="kpi">
+          <div class="lbl">Baza teraz</div>
+          <div class="val" id="kpiBase">—</div>
+          <div class="mini" id="kpiNext">—</div>
+        </div>
+    <div class="kpi">
+        <div class="kpi">
+          <div class="lbl">Daty</div>
+          <div class="val" id="kpiDates">—</div>
+          <div class="mini" id="kpiNights">—</div>
+        </div>
+        
+        <div class="kpi">
+          <div class="lbl">Wylot</div>
+          <div class="val" id="kpiFlightOut">—</div>
+          <div class="mini"> </div>
+        </div>
+        <div class="kpi">
           <div class="lbl">Powrót</div>
           <div class="val" id="kpiFlightBack">—</div>
           <div class="mini"> </div>
@@ -280,7 +308,40 @@
           <div class="val" id="kpiStress">—</div>
           <div class="mini" id="kpiStressHint">—</div>
         </div>
-      </div>
+  </div>
+  <div class="kpisRow kpisBottom">
+    <div class="kpi">
+        <div class="kpi">
+          <div class="lbl">Daty</div>
+          <div class="val" id="kpiDates">—</div>
+          <div class="mini" id="kpiNights">—</div>
+        </div>
+        
+        <div class="kpi">
+          <div class="lbl">Wylot</div>
+          <div class="val" id="kpiFlightOut">—</div>
+          <div class="mini"> </div>
+        </div>
+    <div class="kpi">
+        <div class="kpi">
+          <div class="lbl">Daty</div>
+          <div class="val" id="kpiDates">—</div>
+          <div class="mini" id="kpiNights">—</div>
+        </div>
+        
+        <div class="kpi">
+          <div class="lbl">Wylot</div>
+          <div class="val" id="kpiFlightOut">—</div>
+          <div class="mini"> </div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Powrót</div>
+          <div class="val" id="kpiFlightBack">—</div>
+          <div class="mini"> </div>
+        </div>
+  </div>
+</div>
+
     </div>
   </section>
 <!-- Plan dnia -->
@@ -350,7 +411,7 @@
   <section class="card two">
     <div class="hd">
       <h2>Przydatne linki i uwagi</h2>
-      <div class="hint">Bellagio • Varenna • Menaggio</div>
+      <div class="hint">Linki do biletów, map, rozkładów i tipy</div>
     </div>
     <div class="bd">
       <div class="col">
@@ -362,10 +423,13 @@
           Wklejaj linki do rozkładów/promów i notuj “okna” godzinowe.
         </div>
         <textarea id="comoNotes" placeholder="Notatki: promy, godziny, ceny, linki, tipy..."></textarea>
-        <div class="row">
-          <input id="comoLink1" type="text" placeholder="Link 1 (np. rozkłady promów)"/>
-          <input id="comoLink2" type="text" placeholder="Link 2 (np. bilety / mapa)"/>
+        
+        <div class="row" style="justify-content:space-between; align-items:center; margin-top:8px;">
+          <div class="muted">Linki</div>
+          <button class="smallbtn secondary" id="btnAddLink">+ Dodaj link</button>
         </div>
+        <div id="linksList" class="list"></div>
+
       </div>
     </div>
   </section>
@@ -374,7 +438,7 @@
   <section class="card two">
     <div class="hd">
       <h2>Powrót na lotnisko — plan bez gonitwy</h2>
-      <div class="hint">Poniedziałek: wyjazd rano</div>
+      <div class="hint">Plan bez gonitwy</div>
     </div>
     <div class="bd">
       <div class="split">
@@ -640,8 +704,6 @@
 
     $("kpiFlightOut").textContent = state.meta.flightOut || "—";
     $("kpiFlightBack").textContent = state.meta.flightBack || "—";
-    $("kpiAirport").textContent = "—";
-
     const today = new Date();
     const isoToday = today.toISOString().slice(0,10);
     const next = (state.planDays||[])
@@ -722,8 +784,8 @@
             <span contenteditable="true" data-lk="city" data-li="${i}">${escapeHtml(l.city||"")}</span>
             • <span contenteditable="true" data-lk="address" data-li="${i}">${escapeHtml(l.address||"")}</span>
             <br>
-            <span class="mono">IN:</span> <span contenteditable="true" data-lk="checkIn" data-li="${i}">${escapeHtml(l.checkIn||"")}</span>
-            <span class="mono">OUT:</span> <span contenteditable="true" data-lk="checkOut" data-li="${i}">${escapeHtml(l.checkOut||"")}</span>
+            <span class="mono">IN:</span> <input type="date" class="dateinp" data-lk="checkIn" data-li="${i}" value="${escapeHtml(l.checkIn||"")}">
+            <span class="mono">OUT:</span> <input type="date" class="dateinp" data-lk="checkOut" data-li="${i}" value="${escapeHtml(l.checkOut||"")}">
             <br>
             <span contenteditable="true" data-lk="notes" data-li="${i}">${escapeHtml(l.notes||"")}</span>
           </div>
@@ -739,6 +801,13 @@
         save();
       });
     });
+    box.querySelectorAll('input[type="date"]').forEach(inp=>{
+      inp.addEventListener("change", ()=>{
+        const i = Number(inp.dataset.li), k = inp.dataset.lk;
+        state.lodgings[i][k] = inp.value;
+        save();
+      });
+    });
     box.querySelectorAll("[data-del]").forEach(b=>{
       b.addEventListener("click", ()=>{
         const i = Number(b.dataset.del);
@@ -748,7 +817,54 @@
     });
   }
 
-  function renderTasks(){
+  
+  function ensureLinksModel(){
+    state.como = state.como || { baseSuggest:"", notes:"", link1:"", link2:"" };
+    if(!Array.isArray(state.como.links)){
+      const links = [];
+      const a = (state.como.link1||"").trim();
+      const b = (state.como.link2||"").trim();
+      if(a) links.push({title:"", url:a});
+      if(b) links.push({title:"", url:b});
+      state.como.links = links;
+    }
+  }
+
+  function renderLinks(){
+    ensureLinksModel();
+    const list = $("linksList");
+    if(!list) return;
+    list.innerHTML = "";
+    for(const [i,lnk] of (state.como.links||[]).entries()){
+      const row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML = `
+        <div class="txt">
+          <div class="d">
+            <input class="linkTitle" type="text" placeholder="Tytuł (opcjonalnie)" value="${escapeHtml(lnk.title||"")}" data-li="${i}" data-lk="title">
+            <input class="linkUrl" type="text" placeholder="URL" value="${escapeHtml(lnk.url||"")}" data-li="${i}" data-lk="url">
+          </div>
+        </div>
+        <div class="x" title="Usuń" data-ldel="${i}">✕</div>
+      `;
+      list.appendChild(row);
+    }
+    list.querySelectorAll("input").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        const i = Number(inp.dataset.li), k = inp.dataset.lk;
+        state.como.links[i][k] = inp.value;
+        save();
+      });
+    });
+    list.querySelectorAll("[data-ldel]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        state.como.links.splice(Number(b.dataset.ldel),1);
+        renderLinks(); save();
+      });
+    });
+  }
+
+function renderTasks(){
     const list = $("taskList");
     list.innerHTML = "";
     for(const [i,t] of (state.tasks||[]).entries()){
@@ -855,8 +971,9 @@
 
     $("comoBaseSuggest").textContent = state.como.baseSuggest || "—";
     $("comoNotes").value = state.como.notes || "";
-    $("comoLink1").value = state.como.link1 || "";
-    $("comoLink2").value = state.como.link2 || "";
+    /* stare pola link1/link2 usunięte z UI (zostawione dla kompatybilności JSON) */
+    ensureLinksModel();
+    renderLinks();
 
     $("returnStart").value = state.returnPlan.start || "";
     $("returnGoal").value = state.returnPlan.goal || "";
@@ -876,6 +993,7 @@
     renderTasks();
     renderBudget();
     renderForm();
+    renderLinks();
   }
 
   function save(){
@@ -911,14 +1029,16 @@
   $("btnAddTask").addEventListener("click", ()=>{ const t=$("newTaskTitle").value.trim(); if(!t) return; state.tasks.push({done:false, title:t, desc:""}); $("newTaskTitle").value=""; renderTasks(); save(); });
   $("btnAddCost").addEventListener("click", ()=>{ state.budget.push({item:"Nowy koszt", amount:0, currency:"EUR", note:""}); renderBudget(); save(); });
 
+  $("btnAddLink")?.addEventListener("click", ()=>{ ensureLinksModel(); state.como.links.push({title:"", url:""}); renderLinks(); save(); });
+
   $("tripNameInput").addEventListener("input", ()=>{ state.meta.tripName = $("tripNameInput").value; $("tripName").textContent = state.meta.tripName || "—"; save(); });
   $("flightOut").addEventListener("input", ()=>{ state.meta.flightOut = $("flightOut").value; save(); });
   $("flightBack").addEventListener("input", ()=>{ state.meta.flightBack = $("flightBack").value; save(); });
   $("generalNotes").addEventListener("input", ()=>{ state.meta.generalNotes = $("generalNotes").value; updateGeneralNotesPreview(); save(); });
 
   $("comoNotes").addEventListener("input", ()=>{ state.como.notes = $("comoNotes").value; save(); });
-  $("comoLink1").addEventListener("input", ()=>{ state.como.link1 = $("comoLink1").value; save(); });
-  $("comoLink2").addEventListener("input", ()=>{ state.como.link2 = $("comoLink2").value; save(); });
+  });
+  });
 
   $("returnStart").addEventListener("input", ()=>{ state.returnPlan.start = $("returnStart").value; save(); });
   $("returnGoal").addEventListener("input", ()=>{ state.returnPlan.goal = $("returnGoal").value; save(); });
