@@ -92,7 +92,22 @@
 }
 
 
-.kpi{
+/* Podgląd: układ KPI (desktop): 3×33% + 2×50% */
+.kpis.kpisPreview{grid-template-columns: repeat(6, 1fr)}
+.kpis.kpisPreview .kpi.span2{grid-column: span 2}
+.kpis.kpisPreview .kpi.span3{grid-column: span 3}
+
+/* Na mniejszych ekranach zostaw automatyczne łamanie */
+@media (max-width: 860px){
+  .kpis.kpisPreview{grid-template-columns: repeat(2, 1fr)}
+  .kpis.kpisPreview .kpi.span2,
+  .kpis.kpisPreview .kpi.span3{grid-column: auto}
+}
+@media (max-width: 520px){
+  .kpis.kpisPreview{grid-template-columns: 1fr}
+}
+
+    .kpi{
       border:1px solid rgba(255,255,255,.07);
       background:rgba(17,24,39,.55);
       border-radius:14px;
@@ -201,7 +216,33 @@
       background:rgba(96,165,250,.12); border:1px solid rgba(96,165,250,.28);
       font-size:11px; color:rgba(229,231,235,.9)
     }
-  </style>
+  
+/* Noclegi: daty IN/OUT */
+.dateinp{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: inherit;
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-width: 155px;
+}
+@media (max-width: 520px){
+  .dateinp{min-width: 100%; width: 100%}
+}
+
+/* Linki (stare pola) – ukryte */
+#comoLink1, #comoLink2{display:none}
+
+/* Linki: lista */
+.linkTitle, .linkUrl{
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: inherit;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+</style>
 
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0b0f17">
@@ -249,50 +290,48 @@
     </div>
     <div class="bd">
       
-<div class="kpis kpisPreview">
-  <div class="kpisRow kpisTop">
-    <div class="kpi">
-        <div class="kpi">
-          <div class="lbl">Daty</div>
-          <div class="val" id="kpiDates">—</div>
-          <div class="mini" id="kpiNights">—</div>
+      <div class="kpis kpisPreview">
+        <div class="kpisRow kpisTop">
+          <div class="kpi">
+            <div class="lbl">Daty</div>
+            <div class="val" id="kpiDates">—</div>
+            <div class="mini" id="kpiNights">—</div>
+          </div>
+          <div class="kpi">
+            <div class="lbl">Baza teraz</div>
+            <div class="val" id="kpiBase">—</div>
+            <div class="mini" id="kpiNext">—</div>
+          </div>
+          <div class="kpi">
+            <div class="lbl">Ryzyko gonitwy (powrót)</div>
+            <div class="val" id="kpiStress">—</div>
+            <div class="mini" id="kpiStressHint">Ustaw godziny wyjazdu i lotu.</div>
+          </div>
         </div>
-    <div class="kpi">
-        <div class="kpi">
-          <div class="lbl">Daty</div>
-          <div class="val" id="kpiDates">—</div>
-          <div class="mini" id="kpiNights">—</div>
+        <div class="kpisRow kpisBottom">
+          <div class="kpi">
+            <div class="lbl">Wylot</div>
+            <div class="val" id="kpiFlightOut">—</div>
+            <div class="mini"> </div>
+          </div>
+          <div class="kpi">
+            <div class="lbl">Powrót</div>
+            <div class="val" id="kpiFlightBack">—</div>
+            <div class="mini"> </div>
+          </div>
         </div>
-        
-        <div class="kpi">
-          <div class="lbl">Wylot</div>
-          <div class="val" id="kpiFlightOut">—</div>
-          <div class="mini"> </div>
-        </div>
-        <div class="kpi">
-          <div class="lbl">Powrót</div>
-          <div class="val" id="kpiFlightBack">—</div>
-          <div class="mini"> </div>
-        </div>
+      </div>
 
-        <div class="kpi">
-          <div class="lbl">Baza teraz</div>
-          <div class="val" id="kpiBase">—</div>
-          <div class="mini" id="kpiNext">—</div>
-        </div>
-    <div class="kpi">
-        <div class="kpi">
-          <div class="lbl">Daty</div>
           <div class="val" id="kpiDates">—</div>
           <div class="mini" id="kpiNights">—</div>
         </div>
         
-        <div class="kpi">
+        <div class="kpi span2">
           <div class="lbl">Wylot</div>
           <div class="val" id="kpiFlightOut">—</div>
           <div class="mini"> </div>
         </div>
-        <div class="kpi">
+        <div class="kpi span2">
           <div class="lbl">Powrót</div>
           <div class="val" id="kpiFlightBack">—</div>
           <div class="mini"> </div>
@@ -308,40 +347,7 @@
           <div class="val" id="kpiStress">—</div>
           <div class="mini" id="kpiStressHint">—</div>
         </div>
-  </div>
-  <div class="kpisRow kpisBottom">
-    <div class="kpi">
-        <div class="kpi">
-          <div class="lbl">Daty</div>
-          <div class="val" id="kpiDates">—</div>
-          <div class="mini" id="kpiNights">—</div>
-        </div>
-        
-        <div class="kpi">
-          <div class="lbl">Wylot</div>
-          <div class="val" id="kpiFlightOut">—</div>
-          <div class="mini"> </div>
-        </div>
-    <div class="kpi">
-        <div class="kpi">
-          <div class="lbl">Daty</div>
-          <div class="val" id="kpiDates">—</div>
-          <div class="mini" id="kpiNights">—</div>
-        </div>
-        
-        <div class="kpi">
-          <div class="lbl">Wylot</div>
-          <div class="val" id="kpiFlightOut">—</div>
-          <div class="mini"> </div>
-        </div>
-        <div class="kpi">
-          <div class="lbl">Powrót</div>
-          <div class="val" id="kpiFlightBack">—</div>
-          <div class="mini"> </div>
-        </div>
-  </div>
-</div>
-
+      </div>
     </div>
   </section>
 <!-- Plan dnia -->
@@ -387,7 +393,7 @@
   <section class="card four">
     <div class="hd">
       <h2>Noclegi</h2>
-      <div class="hint">Adresy + check‑in/out</div>
+      <div class="hint">Adresy + check‑in/out<br><span id="lodgingsSummary">Noce: — • Pozostało: —</span></div>
     </div>
     <div class="bd">
       <div class="list" id="lodgingList"></div>
@@ -411,7 +417,7 @@
   <section class="card two">
     <div class="hd">
       <h2>Przydatne linki i uwagi</h2>
-      <div class="hint">Linki do biletów, map, rozkładów i tipy</div>
+      <div class="hint"></div>
     </div>
     <div class="bd">
       <div class="col">
@@ -423,13 +429,15 @@
           Wklejaj linki do rozkładów/promów i notuj “okna” godzinowe.
         </div>
         <textarea id="comoNotes" placeholder="Notatki: promy, godziny, ceny, linki, tipy..."></textarea>
-        
-        <div class="row" style="justify-content:space-between; align-items:center; margin-top:8px;">
-          <div class="muted">Linki</div>
-          <button class="smallbtn secondary" id="btnAddLink">+ Dodaj link</button>
+        <div class="row">
+          <input id="comoLink1" type="text" placeholder="Link 1 (np. rozkłady promów)"/>
+          <input id="comoLink2" type="text" placeholder="Link 2 (np. bilety / mapa)"/>
         </div>
-        <div id="linksList" class="list"></div>
-
+      <div class="row" style="justify-content:space-between; align-items:center; margin-top:8px;">
+        <div class="muted">Linki</div>
+        <button class="smallbtn secondary" id="btnAddLink">+ Dodaj link</button>
+      </div>
+      <div id="linksList" class="list"></div>
       </div>
     </div>
   </section>
@@ -438,7 +446,7 @@
   <section class="card two">
     <div class="hd">
       <h2>Powrót na lotnisko — plan bez gonitwy</h2>
-      <div class="hint">Plan bez gonitwy</div>
+      <div class="hint"></div>
     </div>
     <div class="bd">
       <div class="split">
@@ -527,23 +535,7 @@
         <div>
           <div class="muted">JSON (Import/Eksport działa tym samym formatem)</div>
           <textarea id="jsonBox" class="mono" spellcheck="false"></textarea>
-          <div class="row" style="margin-top:10px">
-            <button class="smallbtn ok" id="btnApplyJson">Zastosuj JSON</button>
-            <span class="muted">Uwaga: błędny JSON nie przejdzie.</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</div>
-
-<div class="footer">
-  Auto‑zapis działa w <b>localStorage</b> (czyli tylko w tej przeglądarce). Eksportuj JSON, jeśli chcesz przenieść dane na inny komputer/telefon.
-</div>
-
-<div class="toast" id="toast">Zapisano ✅</div>
-
-<script>
+          <div 
   const STORAGE_KEY = "podroze_dashboard_multi_clean_v1";
 
   const defaultTrip = {
@@ -704,6 +696,8 @@
 
     $("kpiFlightOut").textContent = state.meta.flightOut || "—";
     $("kpiFlightBack").textContent = state.meta.flightBack || "—";
+    $("kpiAirport").textContent = "—";
+
     const today = new Date();
     const isoToday = today.toISOString().slice(0,10);
     const next = (state.planDays||[])
@@ -771,6 +765,38 @@
     });
   }
 
+  
+  function parseISODate(s){
+    if(!s) return null;
+    const m = String(s).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m) return null;
+    return new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+  }
+  function daysDiff(a,b){
+    const ms = 24*60*60*1000;
+    const da = Date.UTC(a.getFullYear(),a.getMonth(),a.getDate());
+    const db = Date.UTC(b.getFullYear(),b.getMonth(),b.getDate());
+    return Math.round((db-da)/ms);
+  }
+  function calcLodgingNights(){
+    const today = new Date();
+    const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    let total = 0;
+    let remaining = 0;
+    (state.lodgings||[]).forEach(l=>{
+      const ci = parseISODate(l.checkIn);
+      const co = parseISODate(l.checkOut);
+      if(ci && co){
+        const n = Math.max(0, daysDiff(ci, co));
+        total += n;
+        const start = (t0 > ci) ? t0 : ci;
+        if(co > start) remaining += Math.max(0, daysDiff(start, co));
+      }
+    });
+    const el = $("lodgingsSummary");
+    if(el) el.textContent = `Noce: ${total} • Pozostało: ${remaining}`;
+  }
+
   function renderLodgings(){
     const box = $("lodgingList");
     box.innerHTML = "";
@@ -783,6 +809,8 @@
           <div class="d">
             <span contenteditable="true" data-lk="city" data-li="${i}">${escapeHtml(l.city||"")}</span>
             • <span contenteditable="true" data-lk="address" data-li="${i}">${escapeHtml(l.address||"")}</span>
+            <br>
+            <span class="mono">Link:</span> <span contenteditable="true" data-lk="url" data-li="${i}">${escapeHtml(l.url||"")}</span>
             <br>
             <span class="mono">IN:</span> <input type="date" class="dateinp" data-lk="checkIn" data-li="${i}" value="${escapeHtml(l.checkIn||"")}">
             <span class="mono">OUT:</span> <input type="date" class="dateinp" data-lk="checkOut" data-li="${i}" value="${escapeHtml(l.checkOut||"")}">
@@ -799,13 +827,17 @@
         const i = Number(el.dataset.li), k = el.dataset.lk;
         state.lodgings[i][k] = el.textContent.trim();
         save();
+        calcLodgingNights();
       });
     });
-    box.querySelectorAll('input[type="date"]').forEach(inp=>{
+
+    /* LODGS_DATE_LISTENERS */
+    box.querySelectorAll(".dateinp").forEach(inp=>{
       inp.addEventListener("change", ()=>{
         const i = Number(inp.dataset.li), k = inp.dataset.lk;
         state.lodgings[i][k] = inp.value;
         save();
+        calcLodgingNights();
       });
     });
     box.querySelectorAll("[data-del]").forEach(b=>{
@@ -817,54 +849,7 @@
     });
   }
 
-  
-  function ensureLinksModel(){
-    state.como = state.como || { baseSuggest:"", notes:"", link1:"", link2:"" };
-    if(!Array.isArray(state.como.links)){
-      const links = [];
-      const a = (state.como.link1||"").trim();
-      const b = (state.como.link2||"").trim();
-      if(a) links.push({title:"", url:a});
-      if(b) links.push({title:"", url:b});
-      state.como.links = links;
-    }
-  }
-
-  function renderLinks(){
-    ensureLinksModel();
-    const list = $("linksList");
-    if(!list) return;
-    list.innerHTML = "";
-    for(const [i,lnk] of (state.como.links||[]).entries()){
-      const row = document.createElement("div");
-      row.className = "item";
-      row.innerHTML = `
-        <div class="txt">
-          <div class="d">
-            <input class="linkTitle" type="text" placeholder="Tytuł (opcjonalnie)" value="${escapeHtml(lnk.title||"")}" data-li="${i}" data-lk="title">
-            <input class="linkUrl" type="text" placeholder="URL" value="${escapeHtml(lnk.url||"")}" data-li="${i}" data-lk="url">
-          </div>
-        </div>
-        <div class="x" title="Usuń" data-ldel="${i}">✕</div>
-      `;
-      list.appendChild(row);
-    }
-    list.querySelectorAll("input").forEach(inp=>{
-      inp.addEventListener("input", ()=>{
-        const i = Number(inp.dataset.li), k = inp.dataset.lk;
-        state.como.links[i][k] = inp.value;
-        save();
-      });
-    });
-    list.querySelectorAll("[data-ldel]").forEach(b=>{
-      b.addEventListener("click", ()=>{
-        state.como.links.splice(Number(b.dataset.ldel),1);
-        renderLinks(); save();
-      });
-    });
-  }
-
-function renderTasks(){
+  function renderTasks(){
     const list = $("taskList");
     list.innerHTML = "";
     for(const [i,t] of (state.tasks||[]).entries()){
@@ -958,6 +943,52 @@ function renderTasks(){
     $("budgetSum").textContent = parts.length ? parts.join(" • ") : "0";
   }
 
+  
+  function ensureLinksModel(){
+    state.como = state.como || { baseSuggest:"", notes:"", link1:"", link2:"" };
+    if(!Array.isArray(state.como.links)){
+      const links = [];
+      const a = (state.como.link1||"").trim();
+      const b = (state.como.link2||"").trim();
+      if(a) links.push({title:"", url:a});
+      if(b) links.push({title:"", url:b});
+      state.como.links = links;
+    }
+  }
+  function renderLinks(){
+    ensureLinksModel();
+    const list = $("linksList");
+    if(!list) return;
+    list.innerHTML = "";
+    for(const [i,lnk] of (state.como.links||[]).entries()){
+      const row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML = `
+        <div class="txt">
+          <div class="d">
+            <input class="linkTitle" type="text" placeholder="Tytuł (opcjonalnie)" value="${escapeHtml(lnk.title||"")}" data-li="${i}" data-lk="title">
+            <input class="linkUrl" type="text" placeholder="URL" value="${escapeHtml(lnk.url||"")}" data-li="${i}" data-lk="url">
+          </div>
+        </div>
+        <div class="x" title="Usuń" data-ldel="${i}">✕</div>
+      `;
+      list.appendChild(row);
+    }
+    list.querySelectorAll("input").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        const i = Number(inp.dataset.li), k = inp.dataset.lk;
+        state.como.links[i][k] = inp.value;
+        save();
+      });
+    });
+    list.querySelectorAll("[data-ldel]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        state.como.links.splice(Number(b.dataset.ldel),1);
+        renderLinks(); save();
+      });
+    });
+  }
+
   function renderForm(){
     $("tripName").textContent = state.meta.tripName || "—";
     $("tripNameInput").value = state.meta.tripName || "";
@@ -971,9 +1002,8 @@ function renderTasks(){
 
     $("comoBaseSuggest").textContent = state.como.baseSuggest || "—";
     $("comoNotes").value = state.como.notes || "";
-    /* stare pola link1/link2 usunięte z UI (zostawione dla kompatybilności JSON) */
-    ensureLinksModel();
-    renderLinks();
+    $("comoLink1").value = state.como.link1 || "";
+    $("comoLink2").value = state.como.link2 || "";
 
     $("returnStart").value = state.returnPlan.start || "";
     $("returnGoal").value = state.returnPlan.goal || "";
@@ -993,7 +1023,6 @@ function renderTasks(){
     renderTasks();
     renderBudget();
     renderForm();
-    renderLinks();
   }
 
   function save(){
@@ -1025,7 +1054,7 @@ function renderTasks(){
 
   $("btnAddDay").addEventListener("click", ()=>{ state.planDays.push({date:"", base:"", plan:"", transport:"", status:"plan"}); renderPlan(); save(); });
   $("btnSortDays").addEventListener("click", ()=>{ state.planDays.sort((a,b)=>(a.date||"").localeCompare(b.date||"")); renderPlan(); save(); });
-  $("btnAddLodging").addEventListener("click", ()=>{ state.lodgings.push({name:"Nowy nocleg", city:"", address:"", checkIn:"", checkOut:"", notes:""}); renderLodgings(); save(); });
+  $("btnAddLodging").addEventListener("click", ()=>{ state.lodgings.push({name:"Nowy nocleg", city:"", address:"", url:"", checkIn:"", checkOut:"", notes:""}); renderLodgings(); save(); });
   $("btnAddTask").addEventListener("click", ()=>{ const t=$("newTaskTitle").value.trim(); if(!t) return; state.tasks.push({done:false, title:t, desc:""}); $("newTaskTitle").value=""; renderTasks(); save(); });
   $("btnAddCost").addEventListener("click", ()=>{ state.budget.push({item:"Nowy koszt", amount:0, currency:"EUR", note:""}); renderBudget(); save(); });
 
@@ -1037,8 +1066,8 @@ function renderTasks(){
   $("generalNotes").addEventListener("input", ()=>{ state.meta.generalNotes = $("generalNotes").value; updateGeneralNotesPreview(); save(); });
 
   $("comoNotes").addEventListener("input", ()=>{ state.como.notes = $("comoNotes").value; save(); });
-  });
-  });
+  $("comoLink1").addEventListener("input", ()=>{ state.como.link1 = $("comoLink1").value; save(); });
+  $("comoLink2").addEventListener("input", ()=>{ state.como.link2 = $("comoLink2").value; save(); });
 
   $("returnStart").addEventListener("input", ()=>{ state.returnPlan.start = $("returnStart").value; save(); });
   $("returnGoal").addEventListener("input", ()=>{ state.returnPlan.goal = $("returnGoal").value; save(); });
@@ -1076,6 +1105,21 @@ function renderTasks(){
     const txt = await f.text();
     const p = safeParseJSON(txt);
     if(!p.ok){ alert("Plik JSON ma błąd: " + p.err.message); e.target.value=""; return; }
+    const data = Object.assign(deepClone(defaultTrip), p.data);
+    const name = data?.meta?.tripName || f.name.replace(/\.json$/i,"") || "Podróż z pliku";
+    const id = uid();
+    store.trips[id] = { name, data, updatedAt: Date.now() };
+    store.currentId = id;
+    state = data;
+    renderAll();
+    persistStore();
+    showToast("Zaimportowano jako nową podróż ✅");
+    e.target.value = "";
+  });
+
+  renderAll();
+  persistStore();
+JSON ma błąd: " + p.err.message); e.target.value=""; return; }
     const data = Object.assign(deepClone(defaultTrip), p.data);
     const name = data?.meta?.tripName || f.name.replace(/\.json$/i,"") || "Podróż z pliku";
     const id = uid();
