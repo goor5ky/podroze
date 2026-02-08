@@ -216,6 +216,16 @@
 @media (max-width: 520px){
   .dateinp{min-width: 100%; width: 100%}
 }
+
+/* Linki: lista */
+.linkTitle, .linkUrl{
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: inherit;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
 </style>
 
   <link rel="manifest" href="manifest.webmanifest">
@@ -376,10 +386,13 @@
           Wklejaj linki do rozkładów/promów i notuj “okna” godzinowe.
         </div>
         <textarea id="comoNotes" placeholder="Notatki: promy, godziny, ceny, linki, tipy..."></textarea>
-        <div class="row">
-          <input id="comoLink1" type="text" placeholder="Link 1 (np. rozkłady promów)"/>
-          <input id="comoLink2" type="text" placeholder="Link 2 (np. bilety / mapa)"/>
-        </div>
+        
+      <div class="row" style="justify-content:space-between; align-items:center; margin-top:8px;">
+        <div class="muted">Linki</div>
+        <button class="smallbtn secondary" id="btnAddLink">+ Dodaj link</button>
+      </div>
+      <div id="linksList" class="list"></div>
+
       </div>
     </div>
   </section>
@@ -903,6 +916,53 @@
     $("budgetSum").textContent = parts.length ? parts.join(" • ") : "0";
   }
 
+  
+  function ensureLinksModel(){
+    state.como = state.como || { baseSuggest:"", notes:"", link1:"", link2:"" };
+    if(!Array.isArray(state.como.links)){
+      const links = [];
+      const a = (state.como.link1||"").trim();
+      const b = (state.como.link2||"").trim();
+      if(a) links.push({title:"", url:a});
+      if(b) links.push({title:"", url:b});
+      state.como.links = links;
+    }
+  }
+
+  function renderLinks(){
+    ensureLinksModel();
+    const list = $("linksList");
+    if(!list) return;
+    list.innerHTML = "";
+    for(const [i,lnk] of (state.como.links||[]).entries()){
+      const row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML = `
+        <div class="txt">
+          <div class="d">
+            <input class="linkTitle" type="text" placeholder="Tytuł (opcjonalnie)" value="${escapeHtml(lnk.title||"")}" data-li="${i}" data-lk="title">
+            <input class="linkUrl" type="text" placeholder="URL" value="${escapeHtml(lnk.url||"")}" data-li="${i}" data-lk="url">
+          </div>
+        </div>
+        <div class="x" title="Usuń" data-ldel="${i}">✕</div>
+      `;
+      list.appendChild(row);
+    }
+    list.querySelectorAll("input").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        const i = Number(inp.dataset.li), k = inp.dataset.lk;
+        state.como.links[i][k] = inp.value;
+        save();
+      });
+    });
+    list.querySelectorAll("[data-ldel]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        state.como.links.splice(Number(b.dataset.ldel),1);
+        renderLinks(); save();
+      });
+    });
+  }
+
   function renderForm(){
     $("tripName").textContent = state.meta.tripName || "—";
     $("tripNameInput").value = state.meta.tripName || "";
@@ -916,9 +976,6 @@
 
     $("comoBaseSuggest").textContent = state.como.baseSuggest || "—";
     $("comoNotes").value = state.como.notes || "";
-    $("comoLink1").value = state.como.link1 || "";
-    $("comoLink2").value = state.como.link2 || "";
-
     $("returnStart").value = state.returnPlan.start || "";
     $("returnGoal").value = state.returnPlan.goal || "";
     $("returnDepart").value = state.returnPlan.departTime || "";
@@ -938,6 +995,7 @@
     renderTasks();
     renderBudget();
     renderForm();
+    renderLinks();
   }
 
   function save(){
@@ -972,6 +1030,8 @@
   $("btnAddDay").addEventListener("click", ()=>{ state.planDays.push({date:"", base:"", plan:"", transport:"", status:"plan"}); renderPlan(); save(); });
   $("btnSortDays").addEventListener("click", ()=>{ state.planDays.sort((a,b)=>(a.date||"").localeCompare(b.date||"")); renderPlan(); save(); });
   $("btnAddLodging").addEventListener("click", ()=>{ state.lodgings.push({name:"Nowy nocleg", city:"", address:"", url:"", checkIn:"", checkOut:"", notes:""}); renderLodgings(); save(); });
+
+  $("btnAddLink")?.addEventListener("click", ()=>{ ensureLinksModel(); state.como.links.push({title:"", url:""}); renderLinks(); save(); });
   $("btnAddTask").addEventListener("click", ()=>{ const t=$("newTaskTitle").value.trim(); if(!t) return; state.tasks.push({done:false, title:t, desc:""}); $("newTaskTitle").value=""; renderTasks(); save(); });
   $("btnAddCost").addEventListener("click", ()=>{ state.budget.push({item:"Nowy koszt", amount:0, currency:"EUR", note:""}); renderBudget(); save(); });
 
@@ -981,8 +1041,8 @@
   $("generalNotes").addEventListener("input", ()=>{ state.meta.generalNotes = $("generalNotes").value; updateGeneralNotesPreview(); save(); });
 
   $("comoNotes").addEventListener("input", ()=>{ state.como.notes = $("comoNotes").value; save(); });
-  $("comoLink1").addEventListener("input", ()=>{ state.como.link1 = $("comoLink1").value; save(); });
-  $("comoLink2").addEventListener("input", ()=>{ state.como.link2 = $("comoLink2").value; save(); });
+  });
+  });
 
   $("returnStart").addEventListener("input", ()=>{ state.returnPlan.start = $("returnStart").value; save(); });
   $("returnGoal").addEventListener("input", ()=>{ state.returnPlan.goal = $("returnGoal").value; save(); });
